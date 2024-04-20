@@ -1,0 +1,48 @@
+<?php
+
+
+namespace App\Telegram\Keyboards;
+
+use DefStudio\Telegraph\Keyboard\Button;
+use DefStudio\Telegraph\Keyboard\Keyboard;
+
+
+class CarBrandKb
+{
+    public function getAllCarBrands(): mixed
+    {
+        $path = __DIR__ . '/../../brand-items-id-name-slug.json';
+        $json = file_get_contents($path);
+        return json_decode($json, true);
+    }
+
+    public function getBrandButtons(): array
+    {
+        $brands = $this->getAllCarBrands();
+        $buttons = [];
+        $len = count($brands);
+        for ($i = 0; $i < $len; $i += 3) {
+            $temp = [];
+            $step = min($i + 3, $len);
+            for ($j = $i; $j < $step; $j++) {
+                $car_brand = $brands[$j]['slug'];
+                $temp[] = Button::make($car_brand)
+                    ->action('car_brand')
+                    ->param('car_brand', $car_brand);
+            }
+            $buttons[] = $temp;
+        }
+        return $buttons;
+    }
+
+    public function getInlineKb(int $page = 0): Keyboard
+    {
+        $buttons = $this->getBrandButtons();
+        $kb = Keyboard::make();
+        for ($i = 0; $i < 4; $i++) {
+            $kb->row($buttons[$i]);
+        }
+
+        return $kb;
+    }
+}
