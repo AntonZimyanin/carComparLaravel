@@ -3,20 +3,26 @@
 
 namespace App\Telegram\Keyboards;
 
+use App\Telegram\Keyboards\Pagination\Pagination;
 use DefStudio\Telegraph\Keyboard\Button;
 use DefStudio\Telegraph\Keyboard\Keyboard;
 
 
-class CarBrandKb
+class CarBrandKb extends BaseKb
 {
-    public function getAllCarBrands(): mixed
+
+    private Pagination $pagination;
+    public function __construct(Pagination $pagination) { 
+        $this->pagination = $pagination;
+    }
+    private function getAllCarBrands(): mixed
     {
-        $path = __DIR__ . '/../../brand-items-id-name-slug.json';
+        $path = base_path('brand-items-id-name-slug.json');
         $json = file_get_contents($path);
         return json_decode($json, true);
     }
 
-    public function getBrandButtons(): array
+    public function getButtons(): array
     {
         $brands = $this->getAllCarBrands();
         $buttons = [];
@@ -27,7 +33,7 @@ class CarBrandKb
             for ($j = $i; $j < $step; $j++) {
                 $car_brand = $brands[$j]['slug'];
                 $temp[] = Button::make($car_brand)
-                    ->action('car_brand')
+                    ->action('set_car_brand')
                     ->param('car_brand', $car_brand);
             }
             $buttons[] = $temp;
@@ -37,11 +43,13 @@ class CarBrandKb
 
     public function getInlineKb(int $page = 0): Keyboard
     {
-        $buttons = $this->getBrandButtons();
+        $buttons = $this->getButtons();
         $kb = Keyboard::make();
         for ($i = 0; $i < 4; $i++) {
             $kb->row($buttons[$i]);
         }
+        
+        
 
         return $kb;
     }

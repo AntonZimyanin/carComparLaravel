@@ -5,16 +5,16 @@ namespace App\Telegram\Keyboards;
 use DefStudio\Telegraph\Keyboard\Button;
 use DefStudio\Telegraph\Keyboard\Keyboard;
 
-class CarModelKb
+class CarModelKb extends BaseKb
 {
 
-    public function getCarModels()
+    private function getCarModels()
     {
-        $path = __DIR__ . '/../../brand-items-id-name-slug.json';
+        $path = base_path('brand-items-id-name-slug.json');
         $json = file_get_contents($path);
         return json_decode($json, true);
     }
-    public function getCarModelsButtons(): array
+    public function getButtons(): array
     {
         $carModels = $this->getCarModels();
         $buttons = [];
@@ -33,9 +33,9 @@ class CarModelKb
         return $buttons;
     }
 
-    public function getInlineKbCarModels(int $page = 0): Keyboard
+    public function getInlineKb(int $page = 0): Keyboard
     {
-        $buttons = $this->getCarModelsButtons();
+        $buttons = $this->getButtons();
         $kb = Keyboard::make()
             ->row($buttons[0])
             ->row([
