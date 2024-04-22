@@ -10,11 +10,17 @@ use App\Telegram\KeyboardActions\Filter;
 use App\Telegram\KeyboardActions\CarBrand;
 use App\Telegram\KeyboardActions\CarModel;
 use App\Telegram\KeyboardActions\CarPrice;
+use App\Telegram\KeyboardActions\ShowCars;
 
 
+
+use DefStudio\Telegraph\Exceptions\StorageException;
 use DefStudio\Telegraph\Facades\Telegraph;
 use DefStudio\Telegraph\Handlers\WebhookHandler;
 use Illuminate\Support\Stringable;
+
+
+use App\Telegram\Keyboards\AlphabetKb;
 
 
 class Handler extends WebhookHandler
@@ -23,12 +29,12 @@ class Handler extends WebhookHandler
     private StartCommand $startCommand;
     private SettingCommand $settingCommand;
 
-    //action 
+    //action
     private Filter $filter;
     private CarBrand $carBrand;
     private CarModel $carModel;
     private CarPrice $carPrice;
-
+    private ShowCars $showCars;
 
     public function __construct(
         StartCommand $startCommand,
@@ -37,6 +43,7 @@ class Handler extends WebhookHandler
         CarBrand $carBrand,
         CarModel $carModel,
         CarPrice $carPrice,
+        ShowCars $showCars,
     ) {
         parent::__construct();
         $this->startCommand = $startCommand;
@@ -46,11 +53,19 @@ class Handler extends WebhookHandler
         $this->carBrand = $carBrand;
         $this->carModel = $carModel;
         $this->carPrice = $carPrice;
+        $this->showCars = $showCars;
     }
 
+    /**
+     * @throws StorageException
+     */
     public function start(): void
     {
-        $this->startCommand->sendCommand($this->chat);
+       $this->bot->storage('cache')->set('car_brand_text', 'Audi');
+       $audi = $this->chat->storage()->get('car_brand_text');
+       $this->chat->storage()->forget('car_brand_text');
+       Telegraph::message("Hello, $audi")->send();
+    //    $this->startCommand->sendCommand($this->chat);
     }
 
     public function setting(): void
@@ -62,28 +77,47 @@ class Handler extends WebhookHandler
     {
         $this->filter->addFilter($this->chat);
     }
-    public function set_car_brand(): void
+
+    public function show_cars(): void
     {
-        $this->carBrand->setCarBrand(
+        $this->showCars->showCars(
             $this->chat,
-            $this->bot->storage()
+            $this->data
         );
     }
 
+    /**
+     * @throws StorageException
+     */
+    public function set_car_brand(): void
+    {
+        // $this->chat->withData->da;
+        $this->carBrand->setCarBrand(
+            $this->chat,
+            $this->data,
+        );
+    }
+
+    /**
+     * @throws StorageException
+     */
     public function set_car_model(): void
     {
         $this->carModel->setCarModel(
             $this->chat,
-            $this->bot->storage()
+            $this->data,
         );
     }
 
 
+    /**
+     * @throws StorageException
+     */
     public function set_car_price(): void
     {
         $this->carPrice->setCarPrice(
             $this->chat,
-            $this->bot->storage()
+            $this->data,
         );
     }
 

@@ -36,11 +36,10 @@ class CarModelKb extends BaseKb
     public function getInlineKb(int $page = 0): Keyboard
     {
         $buttons = $this->getButtons();
-        $kb = Keyboard::make()
+        return Keyboard::make()
             ->row($buttons[0])
             ->row([
                 $buttons[0][1]
             ]);
-        return $kb;
     }
 }

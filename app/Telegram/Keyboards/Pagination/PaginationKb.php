@@ -5,7 +5,7 @@ namespace App\Telegram\Keyboards\Pagination;
 use DefStudio\Telegraph\Keyboard\Button;
 use DefStudio\Telegraph\Keyboard\Keyboard;
 
-class Pagination
+class PaginationKb
 {
     private int $countItems;
     private int $itemsPerPage;

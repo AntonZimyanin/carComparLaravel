@@ -85,7 +85,6 @@ return [
                  * DefStudio\Telegraph\Contracts\StorageDriver contract
                  */
                 'driver' => \DefStudio\Telegraph\Storage\FileStorageDriver::class,
-
                 /*
                  * Laravel Storage disk to use. See /config/filesystems/disks for available disks
                  * If 'null', Laravel default store will be used,

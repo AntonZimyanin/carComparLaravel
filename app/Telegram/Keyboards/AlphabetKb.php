@@ -7,35 +7,42 @@ use DefStudio\Telegraph\Keyboard\Keyboard;
 
 class AlphabetKb extends BaseKb
 {
-    public function getInlineKb(): Keyboard
+    /**
+     * Create an array of buttons for each letter of the alphabet.
+     *
+     * @return array
+     */
+    private function getButtons(): array
     {
-        $keyboard = Keyboard::make();
         $alphabet = range('A', 'Z');
+        $buttons = [];
 
         foreach ($alphabet as $letter) {
-            $keyboard->row([
-                Button::make($letter)->action('show_cars')->param('letter', $letter),
-            ]);
+            $buttons[] = Button::make($letter)
+                ->action('show_cars')
+                ->param('letter', $letter);
         }
 
-        return $keyboard;
+        return $buttons;
+    }
+
+    /**
+     * Create a keyboard layout with the buttons arranged in rows.
+     *
+     * @return Keyboard
+     */
+    public function getInlineKb(): Keyboard
+    {
+        $kb = Keyboard::make();
+        $buttons = $this->getButtons();
+        $len = count($buttons);
+
+        for ($i = 0; $i < $len; $i += 3) {
+            $step = min(3, $len - $i);
+            $kb->row(array_slice($buttons, $i, $step));
+        }
+
+        return $kb;
     }
 }
 
-class ShowCarsAction
-{
-    private AlphabetKb $alphabetKb;
-
-    public function __construct(AlphabetKb $alphabetKb)
-    {
-        $this->alphabetKb = $alphabetKb;
-    }
-
-    public function show_cars(StorageDriver $storage): void
-    {
-        $letter = $storage->get['letter'];
-
-        
-
-    }
-}

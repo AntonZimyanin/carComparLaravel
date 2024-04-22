@@ -4,10 +4,12 @@ namespace App\Telegram\KeyboardActions;
 
 use App\Telegram\Keyboards\CarBrandKb;
 
+use DefStudio\Telegraph\Exceptions\StorageException;
 use DefStudio\Telegraph\Keyboard\Button;
 use DefStudio\Telegraph\Keyboard\Keyboard;
 use DefStudio\Telegraph\Models\TelegraphChat;
 use DefStudio\Telegraph\Contracts\StorageDriver;
+use Illuminate\Support\Collection;
 
 
 class CarBrand
@@ -20,13 +22,18 @@ class CarBrand
         $this->carBrandKb = $carBrandKb;
     }
 
-    public function setCarBrand(TelegraphChat $chat, StorageDriver $storage): void
+    /**
+     * @throws StorageException
+     */
+    public function setCarBrand(TelegraphChat $chat, Collection $data): void
     {
-        $car_brand_text = $storage->get("car_brand");
 
-        $storage->set('car_brand_text', $car_brand_text);
+        $car_brand_text = $data->get("car_brand");
+
 
         $mess = "$car_brand_text*Выбырите модель машины*";
+
+        $chat->storage()->set('car_brand_text', $car_brand_text);
 
         $kb = Keyboard::make()
             ->row([
@@ -34,5 +41,6 @@ class CarBrand
             ]);
 
         $chat->message($mess)->keyboard($kb)->send();
+
     }
 }

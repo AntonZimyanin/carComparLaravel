@@ -2,24 +2,26 @@
 
 namespace App\Telegram\KeyboardActions;
 
-use App\Telegram\Keyboards\CarBrandKb;
+use App\Telegram\Keyboards\AlphabetKb;
 
 use DefStudio\Telegraph\Models\TelegraphChat;
 
 
 class Filter
 {
-    private CarBrandKb $carBrandKb;
+    private AlphabetKb $alphabetKb;
 
-    public function __construct(carBrandKb $carBrandKb)
+    public function __construct(AlphabetKb $alphabetKb)
     {
-        $this->carBrandKb = $carBrandKb;
+        $this->alphabetKb = $alphabetKb;
     }
     public function addFilter(TelegraphChat $chat): void
     {
         $mess = "*Выбырите марку машины*";
 
-        $kb = $this->carBrandKb->getInlineKb();
-        $chat->message($mess)->keyboard($kb)->send();
+
+        $chat->message($mess)->keyboard(
+            $this->alphabetKb->getInlineKb()
+        )->send();
     }
 }

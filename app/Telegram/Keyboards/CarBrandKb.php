@@ -3,7 +3,6 @@
 
 namespace App\Telegram\Keyboards;
 
-use App\Telegram\Keyboards\Pagination\Pagination;
 use DefStudio\Telegraph\Keyboard\Button;
 use DefStudio\Telegraph\Keyboard\Keyboard;
 
@@ -11,9 +10,7 @@ use DefStudio\Telegraph\Keyboard\Keyboard;
 class CarBrandKb extends BaseKb
 {
 
-    private Pagination $pagination;
-    public function __construct(Pagination $pagination) { 
-        $this->pagination = $pagination;
+    public function __construct() {
     }
     private function getAllCarBrands(): mixed
     {
@@ -48,8 +45,8 @@ class CarBrandKb extends BaseKb
         for ($i = 0; $i < 4; $i++) {
             $kb->row($buttons[$i]);
         }
-        
-        
+
+
 
         return $kb;
     }

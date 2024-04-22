@@ -2,10 +2,13 @@
 
 namespace App\Telegram\KeyboardActions;
 
+use DefStudio\Telegraph\Exceptions\StorageException;
 use DefStudio\Telegraph\Models\TelegraphChat;
 use DefStudio\Telegraph\Contracts\StorageDriver;
+use Illuminate\Support\Collection;
 
 
+//TODO : save data to DB or Redis cache
 class CarPrice
 {
 
@@ -15,21 +18,30 @@ class CarPrice
     {
     }
 
-    public function setCarPrice(TelegraphChat $chat, StorageDriver $storage): void
+    /**
+     * @throws StorageException
+     */
+    public function setCarPrice(TelegraphChat $chat, Collection $data): void
     {
-        $car_price = $storage->get("car_price");
-        $car_model = $storage->get('car_model_name');
-        $car_brand = $storage->get('car_brand_text');
+        $car_model = $chat->storage()->get('car_model_name');
+        $car_brand = $chat->storage()->get('car_brand_text');
+
+        $car_price = $data->get("car_price");
         $mess = "   *Настройка завершена!*
 
         Ваши настройки️:
         Предпочитаемые машины:
         $car_price
         $car_model
-        $car_brand 
+        $car_brand
 
         ";
 
         $chat->message($mess)->send();
+
+        // $chat->storage()->forget('car_model_name');
+        // $chat->storage()->forget('car_price');
+        // $chat->storage()->forget('car_brand_text');
+        // $chat->storage()->forget('car_model_text');
     }
 }
