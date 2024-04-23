@@ -7,7 +7,7 @@ use App\Telegram\Keyboards\Pagination\PaginationKb;
 use DefStudio\Telegraph\Keyboard\Button;
 use DefStudio\Telegraph\Keyboard\Keyboard;
 
-class AlphabetKb extends BaseKb
+class PriceKb extends BaseKb
 {
     private PaginationKb $paginationKb;
 
@@ -16,19 +16,19 @@ class AlphabetKb extends BaseKb
         $this->paginationKb = $paginationKb;
     }
     /**
-     * Create an array of buttons for each letter of the alphabet.
+     * Create an array of buttons for each price_val of the alphabet.
      *
      * @return array
      */
     private function getButtons(): array
     {
-        $alphabet = range('A', 'Z');
+        $priceArr = range(500, 1e4, 500);
         $buttons = [];
 
-        foreach ($alphabet as $letter) {
-            $buttons[] = Button::make($letter)
-                ->action('show_cars')
-                ->param('letter', $letter);
+        foreach ($priceArr as $price_val) {
+            $buttons[] = Button::make($price_val)
+                ->action('set_car_price')
+                ->param('price_val', $price_val);
         }
 
         return $buttons;
@@ -39,6 +39,7 @@ class AlphabetKb extends BaseKb
      *
      * @return Keyboard
      */
+
     private function buildKbWithoutPagination()
     {
         $kb = Keyboard::make();
@@ -49,14 +50,15 @@ class AlphabetKb extends BaseKb
             $step = min(3, $len - $i);
             $kb->row(array_slice($buttons, $i, $step));
         }
-        return $kb;
-    }
 
+        return $kb;
+
+    }
     public function getInlineKb(): Keyboard
     {
-       $kb = $this->buildKbWithoutPagination();
+        $kb = $this->buildKbWithoutPagination();
 
-        return $this->paginationKb->addPaginationToKb($kb, 'add_filter');
+        return $this->paginationKb->addPaginationToKb($kb, 'set_car_model');
     }
 }
 

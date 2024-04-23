@@ -57,15 +57,11 @@ class Handler extends WebhookHandler
     }
 
     /**
-     * @throws StorageException
+     * Command handler start
      */
     public function start(): void
     {
-       $this->bot->storage('cache')->set('car_brand_text', 'Audi');
-       $audi = $this->chat->storage()->get('car_brand_text');
-       $this->chat->storage()->forget('car_brand_text');
-       Telegraph::message("Hello, $audi")->send();
-    //    $this->startCommand->sendCommand($this->chat);
+        $this->startCommand->sendCommand($this->chat);
     }
 
     public function setting(): void
@@ -73,11 +69,17 @@ class Handler extends WebhookHandler
         $this->settingCommand->sendCommand($this->chat);
     }
 
+    /**
+     * @throws StorageException
+     */
     public function add_filter(): void
     {
         $this->filter->addFilter($this->chat);
     }
 
+    /**
+     * @throws StorageException
+     */
     public function show_cars(): void
     {
         $this->showCars->showCars(
@@ -91,7 +93,6 @@ class Handler extends WebhookHandler
      */
     public function set_car_brand(): void
     {
-        // $this->chat->withData->da;
         $this->carBrand->setCarBrand(
             $this->chat,
             $this->data,

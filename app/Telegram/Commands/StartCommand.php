@@ -3,15 +3,15 @@
 
 namespace App\Telegram\Commands;
 
-use App\Telegram\Keyboards\StarKb;
+use App\Telegram\Keyboards\StartKb;
 
 use DefStudio\Telegraph\Models\TelegraphChat;
 
 
 class StartCommand
 {
-    private StarKb $kb;
-    public function __construct(StarKb $kb)
+    private StartKb $kb;
+    public function __construct(StartKb $kb)
     {
         $this->kb = $kb;
     }

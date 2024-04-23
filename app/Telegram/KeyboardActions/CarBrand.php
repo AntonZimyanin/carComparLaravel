@@ -3,6 +3,7 @@
 namespace App\Telegram\KeyboardActions;
 
 use App\Telegram\Keyboards\CarBrandKb;
+use App\Telegram\Keyboards\Pagination\PaginationKb;
 
 use DefStudio\Telegraph\Exceptions\StorageException;
 use DefStudio\Telegraph\Keyboard\Button;
@@ -15,11 +16,13 @@ use Illuminate\Support\Collection;
 class CarBrand
 {
 
+    private PaginationKb $paginationKb;
     private CarBrandKb $carBrandKb;
 
-    public function __construct(CarBrandKb $carBrandKb)
+    public function __construct(CarBrandKb $carBrandKb, PaginationKb $paginationKb)
     {
         $this->carBrandKb = $carBrandKb;
+        $this->paginationKb = $paginationKb;
     }
 
     /**
@@ -39,6 +42,8 @@ class CarBrand
             ->row([
                 Button::make('Audi 100')->action('set_car_model')->param('car_model_name', 'Audi 100'),
             ]);
+
+        $kb = $this->paginationKb->addPaginationToKb($kb, 'set_car_brand');
 
         $chat->message($mess)->keyboard($kb)->send();
 

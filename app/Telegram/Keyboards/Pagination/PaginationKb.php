@@ -7,33 +7,40 @@ use DefStudio\Telegraph\Keyboard\Keyboard;
 
 class PaginationKb
 {
-    private int $countItems;
-    private int $itemsPerPage;
+    private array $itemsArr = ['add_filter', 'show_cars', 'set_car_brand', 'set_car_model'];
 
-    public function __construct(array $items, int $itemsPerPage = 5)
+    public function __construct()
     {
-        $this->countItems = count($items);
-        $this->itemsPerPage = $itemsPerPage;
+        $this->countItems = count($this->itemsArr);
     }
 
-    public function addPaginationToKb(Keyboard $kb, int $page = 0): Keyboard
+    public function addPaginationToKb(Keyboard $kb, string $currentPageStr): Keyboard
     {
+        $page = array_search($currentPageStr, $this->itemsArr);
 
-        $start = $page * $this->itemsPerPage;
-        $end = min($start + $this->itemsPerPage, $this->countItems);
+        if ($page == 0) {
+            $kb->row([
+                Button::make('Previous')->action('setting'),
+                Button::make('Next')->action($this->itemsArr[$page + 1])->param('page', $page + 1),
 
+            ]);
+        }
 
-        if ($page > 0) {
+        if ($page > 0 && $page < $this->countItems - 1) {
             $kb->row([
                 Button::make('Previous')->action('change_page')->param('page', $page - 1),
+                Button::make('Next')->action('car_price')->param('page', $page + 1),
+
             ]);
         }
 
-        if ($end < $this->countItems) {
+
+        if ($page == $this->countItems - 1) {
             $kb->row([
-                Button::make('Next')->action('change_page')->param('page', $page + 1),
+                    Button::make('Вернуться к настройкам')->action('change_page')->param('page', $page - 1),
             ]);
         }
+
 
         return $kb;
     }

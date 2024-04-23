@@ -21,8 +21,11 @@ class CarPrice
     /**
      * @throws StorageException
      */
-    public function setCarPrice(TelegraphChat $chat, Collection $data): void
+    public function setCarPrice(TelegraphChat $chat, Collection|null $data): void
     {
+        if ($data == null) {
+            return;
+        }
         $car_model = $chat->storage()->get('car_model_name');
         $car_brand = $chat->storage()->get('car_brand_text');
 

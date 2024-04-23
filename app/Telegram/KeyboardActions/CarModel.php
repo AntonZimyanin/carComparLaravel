@@ -4,6 +4,8 @@ namespace App\Telegram\KeyboardActions;
 
 use App\Telegram\Keyboards\CarModelKb;
 
+use App\Telegram\Keyboards\Pagination\PaginationKb;
+use App\Telegram\Keyboards\PriceKb;
 use DefStudio\Telegraph\Exceptions\StorageException;
 use DefStudio\Telegraph\Keyboard\Button;
 use DefStudio\Telegraph\Keyboard\Keyboard;
@@ -14,29 +16,37 @@ use Illuminate\Support\Collection;
 
 class CarModel
 {
+    private PaginationKb $paginationKb;
+    private PriceKb $priceKb;
 
-    private CarModelKb $carModel;
-
-    public function __construct(CarModelKb $carModelKb)
+    public function __construct(PriceKb $priceKb, PaginationKb $paginationKb)
     {
-        $this->carModel = $carModelKb;
+        $this->priceKb = $priceKb;
+        $this->paginationKb = $paginationKb;
+
     }
 
 
     /**
      * @throws StorageException
      */
-    public function setCarModel(TelegraphChat $chat, Collection $data): void
+    public function setCarModel(TelegraphChat $chat, Collection|null $data): void
     {
-        $car_model_name = $data->get("car_model_name");
-        
-        $chat->storage()->set('car_model_name', $car_model_name);
+        if ($data !== null) {
+            $car_model_name = $data->get("car_model_name");
+
+            $chat->storage()->set('car_model_name', $car_model_name);
+        }
+
         $mess = "$car_model_name*Выбырите цену*";
 
-        $kb = Keyboard::make()
-            ->row([
-                Button::make('100$')->action('set_car_price')->param('car_price', '100$'),
-            ]);
-        $chat->message($mess)->keyboard($kb)->send();
+        $lastMessId = $chat->storage()->get('message_id');
+
+        $kb = $this->priceKb->getInlineKb();
+
+        $kb = $this->paginationKb->addPaginationToKb($kb, 'set_car_model');
+        $chat->message($mess)->replaceKeyboard(
+            $lastMessId, $kb
+        )->send();
     }
 }
