@@ -11,12 +11,12 @@ class CarModelKb extends BaseKb
 {
     private AvByApi $av;
     private $carBrandSlug;
-    
-    public function __construct(AvByApi $av) { 
+
+    public function __construct(AvByApi $av) {
         $this->av = $av;
     }
 
-    public function setCarBrand(string $carBrandSlug) { 
+    public function setCarBrand(string $carBrandSlug) {
         $this->carBrandSlug = $carBrandSlug;
     }
 
@@ -29,17 +29,11 @@ class CarModelKb extends BaseKb
     {
         $carModels = $this->getCarModels();
         $buttons = [];
-        $len = count($carModels);
-        for ($i = 0; $i < $len; $i += 4) {
-            $temp = [];
-            $step = min($i + 4, $len);
-            for ($j = $i; $j < $step; $j++) {
-                $carModel = $carModels[$j]['slug'];
-                $temp[] = Button::make($carModel)
-                    ->action('set_car_model')
-                    ->param('car_model', $carModel);
-            }
-            $buttons[] = $temp;
+
+        foreach ($carModels as $carModel) {
+            $buttons[] = Button::make($carModel['slug'])
+                ->action('set_car_model')
+                ->param('car_model_name', $carModel['slug']);
         }
         return $buttons;
     }
@@ -47,7 +41,13 @@ class CarModelKb extends BaseKb
     public function getInlineKb(): Keyboard
     {
         $buttons = $this->getButtons();
-        return Keyboard::make()->buttons(...$buttons);
-           
+        $len = count($buttons);
+        $kb = Keyboard::make();
+        for ($i = 0; $i < $len; $i += 2) {
+            $step = min(2, $len - $i);
+            $kb->row(array_slice($buttons, $i, $step));
+        }
+        return $kb;
+
     }
 }
