@@ -38,7 +38,7 @@ class PaginationKb
 
         if ($page == $this->countItems - 1) {
             $kb->row([
-                    Button::make('Вернуться к настройкам')->action('setting'),
+                    Button::make('Вернуться к настройкам')->action('back_to_settings'),
             ]);
         }
 

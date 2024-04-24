@@ -64,6 +64,9 @@ class Handler extends WebhookHandler
         $this->startCommand->sendCommand($this->chat);
     }
 
+    /**
+     * @throws StorageException
+     */
     public function setting(): void
     {
         $this->settingCommand->sendCommand(
@@ -128,6 +131,14 @@ class Handler extends WebhookHandler
     public function help(): void
     {
         $this->reply("I will help you");
+    }
+
+
+    public function back_to_settings() : void
+    {
+        $this->settingCommand->backToSettings(
+            $this->chat,
+        );
     }
 
     protected function handleUnknownCommand(Stringable $text): void

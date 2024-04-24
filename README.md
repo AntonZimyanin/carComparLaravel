@@ -11,6 +11,8 @@
     - class Parser for av by +- 
     - add filter value to DB (redis or mysql) +-
 
+    - add car generation  
+
 
  - change the field of table User
  - create Bot Model https://github.com/AmnesiaZero/search-bot/blob/main/app/Models/Bot.php
