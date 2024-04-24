@@ -4,24 +4,24 @@ namespace App\Telegram\KeyboardActions;
 
 use App\Telegram\Keyboards\CarModelKb;
 use App\Telegram\Keyboards\Pagination\PaginationKb;
+
 use DefStudio\Telegraph\Exceptions\StorageException;
 use DefStudio\Telegraph\Keyboard\Button;
 use DefStudio\Telegraph\Keyboard\Keyboard;
 use DefStudio\Telegraph\Models\TelegraphChat;
 use Illuminate\Support\Collection;
-use PhpParser\Node\Expr\Cast\Array_;
 
 class ShowCars
 {
     private PaginationKb $paginationKb;
-    private CarModelKb $carModel;
+    private CarPrice $carPrice;
 
-    public function __construct(CarModelKb $carModelKb, PaginationKb $paginationKb)
+    public function __construct(CarPrice $carPrice, PaginationKb $paginationKb)
     {
-        $this->carModel = $carModelKb;
         $this->paginationKb = $paginationKb;
-
+        $this->carPrice = $carPrice;
     }
+
     /**
      * Load car brand data from a JSON file.
      *
@@ -41,7 +41,7 @@ class ShowCars
 
         foreach ($brands as $brand) {
             $buttons[] = Button::make($brand['slug'])
-                ->action('set_car_model')
+                ->action('set_car_brand')
                 ->param('car_brand', $brand['slug']);
         }
 
@@ -59,23 +59,14 @@ class ShowCars
     {
         $initLetter = $data->get('letter');
 
-        if ($initLetter === null ) {
-            $mess = "*Выбырите цену*";
-            $kb = Keyboard::make()
-                ->row([
-                    Button::make('100$')->action('set_car_price')->param('car_price', '100$'),
-                ]);
-            $lastMessId = $chat->storage()->get('message_id');
-
-            $kb = $this->paginationKb->addPaginationToKb($kb, 'set_car_model');
-            $chat->message($mess)->replaceKeyboard(
-                $lastMessId, $kb
-            )->send();
+        if ($initLetter === null) {
+            $this->carPrice->setCarPrice($chat, $data);
             return;
         }
+
+
         $mess = "*$initLetter*";
         $brands = $this->getAllCarBrands();
-
         $brandsBeginningWithLetter = array_filter($brands, function ($brand) use ($initLetter) {
             return $brand['name'][0] === $initLetter;
         });
@@ -90,12 +81,8 @@ class ShowCars
         $lastMessId = $chat->storage()->get('message_id');
         $kb = $this->paginationKb->addPaginationToKb($kb, 'show_cars');
 
-        $chat->message($mess)->replaceKeyboard(
-            $lastMessId,
+        $chat->edit($lastMessId)->message($mess)->keyboard(
             $kb
         )->send();
-
-//        $chat->message($mess)->keyboard($kb)->send();
     }
 }
-

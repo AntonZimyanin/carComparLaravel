@@ -22,13 +22,9 @@ class Filter
      */
     public function addFilter(TelegraphChat $chat): void
     {
-        $mess = "*Выбырите марку машины*";
+        $mess = "Выбырите *первую букву* марки машины";
+        $lastMessId = $chat->storage()->get('message_id');
 
-        $messId = $chat->message($mess)->keyboard(
-            $this->alphabetKb->getInlineKb()    
-        )->send()->telegraphMessageId();
-
-        $chat->storage()->set('message_id', $messId);
-
+        $chat->edit($lastMessId)->message($mess)->keyboard( $this->alphabetKb->getInlineKb())->send();
     }
 }

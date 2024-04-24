@@ -2,14 +2,11 @@
 
 namespace App\Telegram\KeyboardActions;
 
-use App\Telegram\Keyboards\CarBrandKb;
+use App\Telegram\Keyboards\CarModelKb;
 use App\Telegram\Keyboards\Pagination\PaginationKb;
 
 use DefStudio\Telegraph\Exceptions\StorageException;
-use DefStudio\Telegraph\Keyboard\Button;
-use DefStudio\Telegraph\Keyboard\Keyboard;
 use DefStudio\Telegraph\Models\TelegraphChat;
-use DefStudio\Telegraph\Contracts\StorageDriver;
 use Illuminate\Support\Collection;
 
 
@@ -17,11 +14,11 @@ class CarBrand
 {
 
     private PaginationKb $paginationKb;
-    private CarBrandKb $carBrandKb;
+    private CarModelKb $carModelKb;
 
-    public function __construct(CarBrandKb $carBrandKb, PaginationKb $paginationKb)
+    public function __construct(CarModelKb $carModel, PaginationKb $paginationKb)
     {
-        $this->carBrandKb = $carBrandKb;
+        $this->carModelKb = $carModel;
         $this->paginationKb = $paginationKb;
     }
 
@@ -30,22 +27,17 @@ class CarBrand
      */
     public function setCarBrand(TelegraphChat $chat, Collection $data): void
     {
-
+        $lastMessId = $chat->storage()->get('message_id');
         $car_brand_text = $data->get("car_brand");
-
+        $chat->storage()->set('car_brand_text', $car_brand_text);
 
         $mess = "$car_brand_text*Выбырите модель машины*";
 
-        $chat->storage()->set('car_brand_text', $car_brand_text);
-
-        $kb = Keyboard::make()
-            ->row([
-                Button::make('Audi 100')->action('set_car_model')->param('car_model_name', 'Audi 100'),
-            ]);
-
+        $kb = $this->carModelKb;
+        $kb->setCarBrand($car_brand_text);
+        $kb = $kb->getInlineKb();
         $kb = $this->paginationKb->addPaginationToKb($kb, 'set_car_brand');
 
-        $chat->message($mess)->keyboard($kb)->send();
-
+        $chat->edit($lastMessId)->message($mess)->keyboard($kb)->send();
     }
 }

@@ -66,7 +66,9 @@ class Handler extends WebhookHandler
 
     public function setting(): void
     {
-        $this->settingCommand->sendCommand($this->chat);
+        $this->settingCommand->sendCommand(
+            $this->chat,
+        );
     }
 
     /**

@@ -1,0 +1,342 @@
+[
+    {
+        "id": 2320,
+        "name": "Amarok",
+        "slug": "amarok"
+    },
+    {
+        "id": 10020,
+        "name": "Arteon",
+        "slug": "arteon"
+    },
+    {
+        "id": 5980,
+        "name": "Atlas",
+        "slug": "atlas"
+    },
+    {
+        "id": 10265,
+        "name": "Atlas Cross Sport",
+        "slug": "atlas-cross-sport"
+    },
+    {
+        "id": 1217,
+        "name": "Beetle",
+        "slug": "beetle"
+    },
+    {
+        "id": 1218,
+        "name": "Bora",
+        "slug": "bora"
+    },
+    {
+        "id": 1219,
+        "name": "Caddy",
+        "slug": "caddy"
+    },
+    {
+        "id": 5855,
+        "name": "Caddy MAXI",
+        "slug": "caddy-maxi"
+    },
+    {
+        "id": 5916,
+        "name": "California",
+        "slug": "california"
+    },
+    {
+        "id": 5913,
+        "name": "Caravelle",
+        "slug": "caravelle"
+    },
+    {
+        "id": 1220,
+        "name": "Corrado",
+        "slug": "corrado"
+    },
+    {
+        "id": 5732,
+        "name": "Derby",
+        "slug": "derby"
+    },
+    {
+        "id": 10019,
+        "name": "e-Bora",
+        "slug": "e-bora"
+    },
+    {
+        "id": 10536,
+        "name": "e-Caddy",
+        "slug": "e-caddy"
+    },
+    {
+        "id": 5948,
+        "name": "e-Golf",
+        "slug": "e-golf"
+    },
+    {
+        "id": 10097,
+        "name": "e-Lavida",
+        "slug": "e-lavida"
+    },
+    {
+        "id": 2075,
+        "name": "Eos",
+        "slug": "eos"
+    },
+    {
+        "id": 10538,
+        "name": "EuroVan",
+        "slug": "eurovan"
+    },
+    {
+        "id": 1984,
+        "name": "Fox",
+        "slug": "fox"
+    },
+    {
+        "id": 1534,
+        "name": "Gol",
+        "slug": "gol"
+    },
+    {
+        "id": 5908,
+        "name": "Golf",
+        "slug": "golf"
+    },
+    {
+        "id": 10046,
+        "name": "Golf Alltrack",
+        "slug": "alltrack"
+    },
+    {
+        "id": 1221,
+        "name": "Golf Country",
+        "slug": "golf-country"
+    },
+    {
+        "id": 10389,
+        "name": "Golf GTD",
+        "slug": "golf-gtd"
+    },
+    {
+        "id": 10495,
+        "name": "Golf GTE",
+        "slug": "golf-gte"
+    },
+    {
+        "id": 5909,
+        "name": "Golf GTI",
+        "slug": "golf-gti"
+    },
+    {
+        "id": 2656,
+        "name": "Golf Plus",
+        "slug": "golf-plus"
+    },
+    {
+        "id": 5910,
+        "name": "Golf R",
+        "slug": "golf-r"
+    },
+    {
+        "id": 5911,
+        "name": "Golf R32",
+        "slug": "golf-r32"
+    },
+    {
+        "id": 5964,
+        "name": "Golf Sportsvan",
+        "slug": "golf-sportsvan"
+    },
+    {
+        "id": 10062,
+        "name": "ID.3",
+        "slug": "id-3"
+    },
+    {
+        "id": 10063,
+        "name": "ID.4",
+        "slug": "id-4"
+    },
+    {
+        "id": 10138,
+        "name": "ID.6",
+        "slug": "id-6"
+    },
+    {
+        "id": 5733,
+        "name": "Iltis",
+        "slug": "iltis"
+    },
+    {
+        "id": 1223,
+        "name": "Jetta",
+        "slug": "jetta"
+    },
+    {
+        "id": 10021,
+        "name": "Lavida Plus ",
+        "slug": "lavida-plus"
+    },
+    {
+        "id": 1226,
+        "name": "Lupo",
+        "slug": "lupo"
+    },
+    {
+        "id": 5914,
+        "name": "Multivan",
+        "slug": "multivan"
+    },
+    {
+        "id": 5912,
+        "name": "Passat",
+        "slug": "passat"
+    },
+    {
+        "id": 10532,
+        "name": "Passat (China)",
+        "slug": "passat-china"
+    },
+    {
+        "id": 5835,
+        "name": "Passat (USA)",
+        "slug": "passat-usa"
+    },
+    {
+        "id": 5261,
+        "name": "Passat Alltrack",
+        "slug": "passat-alltrack"
+    },
+    {
+        "id": 2074,
+        "name": "Passat CC",
+        "slug": "passat-cc"
+    },
+    {
+        "id": 1228,
+        "name": "Phaeton",
+        "slug": "phaeton"
+    },
+    {
+        "id": 5309,
+        "name": "Pointer",
+        "slug": "pointer"
+    },
+    {
+        "id": 1229,
+        "name": "Polo",
+        "slug": "polo"
+    },
+    {
+        "id": 5921,
+        "name": "Polo GTI",
+        "slug": "polo-gti"
+    },
+    {
+        "id": 5920,
+        "name": "Polo Sedan",
+        "slug": "polo-sedan"
+    },
+    {
+        "id": 2104,
+        "name": "Routan",
+        "slug": "routan"
+    },
+    {
+        "id": 1425,
+        "name": "Santana",
+        "slug": "santana"
+    },
+    {
+        "id": 1231,
+        "name": "Scirocco",
+        "slug": "scirocco"
+    },
+    {
+        "id": 1230,
+        "name": "Sharan",
+        "slug": "sharan"
+    },
+    {
+        "id": 10207,
+        "name": "T-Cross",
+        "slug": "t-cross"
+    },
+    {
+        "id": 10076,
+        "name": "T-Roc",
+        "slug": "t-roc"
+    },
+    {
+        "id": 10302,
+        "name": "T-Roc R",
+        "slug": "t-roc-r"
+    },
+    {
+        "id": 10221,
+        "name": "Taigo",
+        "slug": "taigo"
+    },
+    {
+        "id": 10081,
+        "name": "Taos ",
+        "slug": "taos"
+    },
+    {
+        "id": 1234,
+        "name": "Taro",
+        "slug": "taro"
+    },
+    {
+        "id": 5842,
+        "name": "Teramont",
+        "slug": "teramont"
+    },
+    {
+        "id": 1974,
+        "name": "Tiguan",
+        "slug": "tiguan"
+    },
+    {
+        "id": 10282,
+        "name": "Tiguan Allspace",
+        "slug": "tiguan-allspace"
+    },
+    {
+        "id": 10283,
+        "name": "Tiguan R",
+        "slug": "tiguan-r"
+    },
+    {
+        "id": 1235,
+        "name": "Touareg",
+        "slug": "touareg"
+    },
+    {
+        "id": 1236,
+        "name": "Touran",
+        "slug": "touran"
+    },
+    {
+        "id": 5915,
+        "name": "Transporter",
+        "slug": "transporter"
+    },
+    {
+        "id": 2673,
+        "name": "Type 2",
+        "slug": "type-2"
+    },
+    {
+        "id": 2674,
+        "name": "up!",
+        "slug": "up"
+    },
+    {
+        "id": 1237,
+        "name": "Vento",
+        "slug": "vento"
+    }
+]

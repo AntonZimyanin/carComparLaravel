@@ -2,20 +2,23 @@
 
 namespace App\Telegram\KeyboardActions;
 
+use App\Telegram\Keyboards\Pagination\PaginationKb;
+use App\Telegram\Enum\AvByCarProperty;
+
+use DefStudio\Telegraph\Keyboard\Keyboard;
 use DefStudio\Telegraph\Exceptions\StorageException;
 use DefStudio\Telegraph\Models\TelegraphChat;
-use DefStudio\Telegraph\Contracts\StorageDriver;
 use Illuminate\Support\Collection;
 
 
 //TODO : save data to DB or Redis cache
 class CarPrice
 {
+    private PaginationKb $paginationKb;
 
-    // private CarModelKb $carModel;
-
-    public function __construct()
+    public function __construct(PaginationKb $paginationKb)
     {
+        $this->paginationKb = $paginationKb;
     }
 
     /**
@@ -28,23 +31,38 @@ class CarPrice
         }
         $car_model = $chat->storage()->get('car_model_name');
         $car_brand = $chat->storage()->get('car_brand_text');
+        $car_price_low = 0;
+        $car_price_high = $data->get("car_price");
 
-        $car_price = $data->get("car_price");
-        $mess = "   *Настройка завершена!*
+        $lastMessId = $chat->storage()->get('message_id');
+
+
+        $mess = "*Настройка завершена!*
 
         Ваши настройки️:
         Предпочитаемые машины:
-        $car_price
-        $car_model
-        $car_brand
+        *Бренд машины:*
+        ".$car_brand."
+        \n
+        *Модель машины:*
+        ".$car_model."
+        \n
+        *Ценовой диапозон:*
+        ".$car_price_low."
+        ".$car_price_high."
+        \n";
+        
 
-        ";
+        $kb = $this->paginationKb->addPaginationToKb(Keyboard::make(), "set_car_price");
+        $chat->edit($lastMessId)->message($mess)->keyboard($kb)->send();
+        
+        // write data to db
+        // $carProperty = new AvByCarProperty(
+        //     $car_brand,
+        //     $car_model,
+        //     0,
+        //     $car_price
+        // );
 
-        $chat->message($mess)->send();
-
-        // $chat->storage()->forget('car_model_name');
-        // $chat->storage()->forget('car_price');
-        // $chat->storage()->forget('car_brand_text');
-        // $chat->storage()->forget('car_model_text');
     }
 }

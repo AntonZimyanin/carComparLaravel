@@ -26,8 +26,18 @@ class SettingCommand
 📑 - создать копию фильтра
 ❌ - удалить фильтр
 ";
-        $chat->message($mess)->keyboard(
-            $this->kb->getSettings()
-        )->send();
+        $kb = $this->kb->getSettings();
+
+        $lastMessId = $chat->storage()->get('message_id');
+
+        if ($lastMessId !== null) { 
+            $chat->edit($lastMessId)->message($mess)->keyboard($kb)->send();
+            return;
+        }
+        $messId = $chat->message($mess)->keyboard(
+            $kb
+        )->send()->telegraphMessageId();
+        
+        $chat->storage()->set('message_id', $messId);
     }
 }

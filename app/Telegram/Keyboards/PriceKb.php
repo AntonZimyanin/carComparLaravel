@@ -26,9 +26,9 @@ class PriceKb extends BaseKb
         $buttons = [];
 
         foreach ($priceArr as $price_val) {
-            $buttons[] = Button::make($price_val)
+            $buttons[] = Button::make('до ' . $price_val)
                 ->action('set_car_price')
-                ->param('price_val', $price_val);
+                ->param('car_price', $price_val);
         }
 
         return $buttons;

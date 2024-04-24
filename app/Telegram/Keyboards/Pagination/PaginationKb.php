@@ -7,7 +7,8 @@ use DefStudio\Telegraph\Keyboard\Keyboard;
 
 class PaginationKb
 {
-    private array $itemsArr = ['add_filter', 'show_cars', 'set_car_brand', 'set_car_model'];
+    private int $countItems;
+    private array $itemsArr = ['add_filter', 'show_cars', 'set_car_brand', 'set_car_model', "set_car_price"];
 
     public function __construct()
     {
@@ -37,7 +38,7 @@ class PaginationKb
 
         if ($page == $this->countItems - 1) {
             $kb->row([
-                    Button::make('Вернуться к настройкам')->action('change_page')->param('page', $page - 1),
+                    Button::make('Вернуться к настройкам')->action('setting'),
             ]);
         }
 
