@@ -10,7 +10,7 @@ use DefStudio\Telegraph\Models\TelegraphChat;
 use Illuminate\Support\Collection;
 
 
-class CarModel 
+class CarModel
 {
     private PaginationKb $paginationKb;
     private PriceKb $priceKb;
@@ -33,13 +33,15 @@ class CarModel
         //     $chat->storage()->set('car_model_name', $car_model_name);
         // }
 
-        $car_model_name = $data->get("car_model_name");
+//        $car_model_name = $data->get("car_model_name");
+        $car_model_id = $data->get("car_model_id");
 
-        $chat->storage()->set('car_model_name', $car_model_name);
+//        $chat->storage()->set('car_model_name', $car_model_name);
+        $chat->storage()->set('car_model_id', $car_model_id);
 
         $lastMessId = $chat->storage()->get('message_id');
 
-        $mess = "$car_model_name*Выбырите цену*";
+        $mess = "$car_model_id*Выбырите цену*";
 
         $lastMessId = $chat->storage()->get('message_id');
 

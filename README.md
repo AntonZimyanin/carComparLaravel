@@ -1,6 +1,12 @@
 
 
 # TODO: 
+
+    - find model id
+    - keyboard builder + 
+    - optimiz add pagination - 
+    - add av by parse action - 
+    - add ui for many model (for example nisan  )
     - remove last keyboard + 
     - add reply button action -
 

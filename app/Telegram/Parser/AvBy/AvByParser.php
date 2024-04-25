@@ -1,36 +1,133 @@
 <?php
 
+namespace App\Telegram\Parser\AvBy;
+
 use App\Telegram\Enum\AvByCarProperty;
+
+use DefStudio\Telegraph\Models\TelegraphChat;
+use DOMDocument;
+use DOMXPath;
 
 class AvByParser
 {
+    private string $xApiKey = 'y5b3b55fdce273d03ec1d22';
 
-    private $url;
+
+    private function getAllCarBrands(): mixed
+    {
+        // $path = dirname(__DIR__) . '/../../../brand-items-id-name-slug.json';
+        $path = base_path('brand-items-id-name-slug.json');
+        $json = file_get_contents($path);
+        return json_decode($json, true);
+    }
+
+    private function findIdBySlug($slug)
+    {
+        $carData = $this->getAllCarBrands();
+
+        $left = 0;
+        $right = count($carData) - 1;
+
+        while ($left <= $right) {
+            $mid = $left + floor(($right - $left) / 2);
+            $currentSlug = $carData[$mid]['slug'];
+
+            if ($currentSlug === $slug) {
+                return $carData[$mid]['id'];
+            } elseif ($currentSlug < $slug) {
+                $left = $mid + 1;
+            } else {
+                $right = $mid - 1;
+            }
+        }
+
+        return null;
+    }
+
+
+    public function getModels($brandSlug)
+    {
+        $brandId = $this->findIdBySlugModel($brandSlug);
+
+        $url = "https://api.av.by/offer-types/cars/catalog/brand-items/$brandId/models";
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, [
+            'X-Api-Key: ' . $this->xApiKey
+        ]);
+        $result = curl_exec($ch);
+        curl_close($ch);
+
+        return json_decode($result, true);
+    }
+
+
+    private function findIdBySlugModel($slug)
+    {
+        $carData = $this->getModels($slug);
+        for ($i = 0; $i < count($carData); $i++) {
+            if ($carData[$i]['slug'] === $slug) {
+                return $carData[$i]['id'];
+            }
+        }
+
+        // $left = 0;
+        // $right = count($carData) - 1;
+
+        // while ($left <= $right) {
+        //     $mid = $left + floor(($right - $left) / 2);
+        //     $currentSlug = $carData[$mid]['slug'];
+
+        //     if ($currentSlug === $slug) {
+        //         return $carData[$mid]['id'];
+        //     } elseif ($currentSlug < $slug) {
+        //         $left = $mid + 1;
+        //     } else {
+        //         $right = $mid - 1;
+        //     }
+        // }
+
+        return null;
+    }
+
+    private string $url;
     public function __construct()
     {
         $this->url = "https://cars.av.by/filter";
     }
-    //https://cars.av.by/filter?brands[0][brand]=1444&brands[0][model]=1451&price_usd[max]=111111
+    //https://cars.av.by/audi/a2
     //https://cars.av.by/filter?brands[0][brand]=1444&brands[0][model]=1451&price_usd[min]=1&price_usd[max]=111111
-    public function set(AvByCarProperty $property): void
+    public function set(    string $car_brand,
+                            string $car_model_id,
+                            int $car_price_low,
+                            int $car_price_high
+    ): void
     {
-        if ($property->car_brand) {
-            $this->url .= "?brands[0][brand]=" . $property->car_brand;
+        $brand_id = $this->findIdBySlug($car_brand);
+
+        if ($car_brand) {
+            $this->url .= "?brands[0][brand]=" . $brand_id;
         }
-        if ($property->car_model) {
-            $this->url .= "&brands[0][model]=" . $property->car_model;
+        if ($car_model_id) {
+            $this->url .= "&brands[0][model]=" . $car_model_id;
         }
-        if ($property->car_price_low) {
-            $this->url .= "&price_usd[min]=" . $property->car_price_low;
-        }
-        if ($property->car_price_high) {
-            $this->url .= "&price_usd[max]=" . $property->car_price_high;
+//        if ($car_price_low) {
+//            $this->url .= "&price_usd[min]=" . $car_price_low;
+//        }
+        if ($car_price_high) {
+            $this->url .= "&price_usd[max]=" . $car_price_high;
         }
     }
 
-
-    public function parse($chat)
+    public function url_r()
     {
+        return $this->url;
+    }
+    public function parse(TelegraphChat $chat): void
+    {
+//        $url = "https://cars.av.by/filter?brands[0][brand]=6&brands[0][model]=5812&brands[0][generation]=4316&price_usd[max]=20000";
+
         $handle = curl_init($this->url);
         curl_setopt($handle, CURLOPT_RETURNTRANSFER, true);
         $html = curl_exec($handle);
@@ -51,43 +148,65 @@ class AvByParser
                 $extractedData[] = $jsonData;
             }
         }
-        file_put_contents('myfile.json', json_encode($extractedData));
         $i = 1;
+        if (empty($extractedData)) {
+            $chat->message("Ничего не найдено2")->send();
+            return;
+        }
+        if ($extractedData[0]['props']['initialState']['filter']['main']['adverts'] == 0) {
+            $chat->message("Ничего не найдено1\n {$this->url}")->send();
+            return;
+        }
+        $sellerName = '';
+        $locationName = '';
+        $brand = '';
+        $model = '';
+        $generation = '';
+        $year = '';
+        $publicUrl = '';
+        $price = '';
+        $photoUrl = '';
         foreach ($extractedData[0]['props']['initialState']['filter']['main']['adverts'] as $fields) {
+            $chat->message("Найдено{$this->url}")->send();
             foreach ($fields as $key => $val) {
 
                 if ($key == 'sellerName') {
-                    echo $i . " $val" . PHP_EOL;
-                    $i++;
+                    $sellerName = $val;
+
                 }
                 if ($key == 'locationName') {
-                    echo 'locationName' . " $val"  . PHP_EOL;
+                    $locationName = $val;
                 }
                 if ($key == 'properties') {
-                    echo "Brand " . $val[0]['value']  . PHP_EOL;
-                    echo "Model " . $val[1]['value']  . PHP_EOL;
-                    echo "generation " . $val[2]['value']  . PHP_EOL;
-                    echo "year " . $val[2]['value']  . PHP_EOL;
-
-                    echo "year " . $val[2]['value']  . PHP_EOL;
+                    $brand = $val[0]['value'];
+                    $model = $val[1]['value'];
+                    $generation = $val[2]['value'];
+                    $year = $val[3]['value'];
                 }
                 if ($key == 'publicUrl') {
-                    echo 'publicUrl' . " $val"  . PHP_EOL;
+                    $publicUrl = $val;
                 }
-
-
                 if ($key == 'price') {
-                    echo 'price';
-                    print_r($val["usd"]);
-                    echo   '' . PHP_EOL;
+                    $price = $val["usd"]["amount"];
                 }
 
                 if ($key == 'photos') {
-                    echo 'photos';
-                    print_r($val);
-                    echo   '' . PHP_EOL;
+                    $photoUrl = $val[0]['medium']['url'];
                 }
+
+
             }
+
+            $chat->photo($photoUrl)->message(
+                "
+Продавец: {$sellerName}
+Город: {$locationName}
+Brand: {$brand}
+Model: {$model}
+Generation: {$generation}
+Year: {$year}
+Price: {$price}
+Public Url: {$publicUrl}")->send();
         }
     }
 }

@@ -3,6 +3,7 @@
 namespace App\Telegram\Keyboards;
 
 use App\Telegram\Keyboards\Pagination\PaginationKb;
+use App\Telegram\Keyboards\Builder\KeyboardBuilder;
 
 use DefStudio\Telegraph\Keyboard\Button;
 use DefStudio\Telegraph\Keyboard\Keyboard;
@@ -10,10 +11,13 @@ use DefStudio\Telegraph\Keyboard\Keyboard;
 class AlphabetKb extends BaseKb
 {
     private PaginationKb $paginationKb;
+    private KeyboardBuilder $kbBuilder;
 
-    public function __construct(PaginationKb $paginationKb)
+
+    public function __construct(PaginationKb $paginationKb, KeyboardBuilder $kbBuilder)
     {
         $this->paginationKb = $paginationKb;
+        $this->kbBuilder = $kbBuilder;
     }
     /**
      * Create an array of buttons for each letter of the alphabet.
@@ -34,27 +38,19 @@ class AlphabetKb extends BaseKb
         return $buttons;
     }
 
-    /**
+   /**
      * Create a keyboard layout with the buttons arranged in rows.
      *
      * @return Keyboard
-     */
-    private function buildKbWithoutPagination()
-    {
-        $kb = Keyboard::make();
-        $buttons = $this->getButtons();
-        $len = count($buttons);
-
-        for ($i = 0; $i < $len; $i += 3) {
-            $step = min(3, $len - $i);
-            $kb->row(array_slice($buttons, $i, $step));
-        }
-        return $kb;
-    }
+    *
+    */
 
     public function getInlineKb(): Keyboard
     {
-       $kb = $this->buildKbWithoutPagination();
+        $buttons = $this->getButtons();
+
+        $this->kbBuilder->set($buttons, 3);
+        $kb = $this->kbBuilder->build();
 
         return $this->paginationKb->addPaginationToKb($kb, 'add_filter');
     }

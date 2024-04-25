@@ -2,9 +2,11 @@
 
 namespace App\Telegram;
 
-
 use App\Telegram\Commands\StartCommand;
 use App\Telegram\Commands\SettingCommand;
+
+
+use App\Telegram\KeyboardActions\Search;
 
 use App\Telegram\KeyboardActions\Filter;
 use App\Telegram\KeyboardActions\CarBrand;
@@ -12,16 +14,10 @@ use App\Telegram\KeyboardActions\CarModel;
 use App\Telegram\KeyboardActions\CarPrice;
 use App\Telegram\KeyboardActions\ShowCars;
 
-
-
 use DefStudio\Telegraph\Exceptions\StorageException;
 use DefStudio\Telegraph\Facades\Telegraph;
 use DefStudio\Telegraph\Handlers\WebhookHandler;
 use Illuminate\Support\Stringable;
-
-
-use App\Telegram\Keyboards\AlphabetKb;
-
 
 class Handler extends WebhookHandler
 {
@@ -35,6 +31,7 @@ class Handler extends WebhookHandler
     private CarModel $carModel;
     private CarPrice $carPrice;
     private ShowCars $showCars;
+    private Search $search;
 
     public function __construct(
         StartCommand $startCommand,
@@ -44,6 +41,7 @@ class Handler extends WebhookHandler
         CarModel $carModel,
         CarPrice $carPrice,
         ShowCars $showCars,
+        Search $search
     ) {
         parent::__construct();
         $this->startCommand = $startCommand;
@@ -54,6 +52,7 @@ class Handler extends WebhookHandler
         $this->carModel = $carModel;
         $this->carPrice = $carPrice;
         $this->showCars = $showCars;
+        $this->search = $search;
     }
 
     /**
@@ -61,6 +60,9 @@ class Handler extends WebhookHandler
      */
     public function start(): void
     {
+//        $this->chat->photo("https://avcdn.av.by/advertmedium/0002/7126/7850.jpg")
+//            ->message("Привет! Я помогу тебе найти автомобиль")
+//            ->send();
         $this->startCommand->sendCommand($this->chat);
     }
 
@@ -127,30 +129,55 @@ class Handler extends WebhookHandler
         );
     }
 
-
     public function help(): void
     {
         $this->reply("I will help you");
     }
 
 
-    public function back_to_settings() : void
+    /**
+     * @throws StorageException
+     */
+    public function back_to_settings(): void
     {
         $this->settingCommand->backToSettings(
             $this->chat,
         );
     }
 
+    /**
+     * @throws StorageException
+     */
+    public function search(): void
+    {
+        $this->search->search(
+            $this->chat,
+        );
+
+    }
+
     protected function handleUnknownCommand(Stringable $text): void
     {
-        if ($text->value() === 'Настройки') {
-            $this->setting();
-        }
-        if ($text->value() === 'Начать поиск') {
-            // $this->add_filter();
-        }
-        if ($text->value() === 'Справка') {
-            $this->help();
-        }
+        Telegraph::message("Такой команды нет")->send();
     }
+    protected function handleChatMessage(Stringable $text): void
+    {
+        $messageText = $text->value();
+        $action = [
+            'Настройки' => 'setting',
+            'Начать поиск' => 'search',
+            'Справка' => 'help',
+        ];
+
+
+         if (array_key_exists($messageText, $action)) {
+             $cmd = $action[$messageText];
+             $this->{$cmd}();
+             return;
+         }
+
+         Telegraph::message("Такой команды нет")->send();
+    }
+
+
 }

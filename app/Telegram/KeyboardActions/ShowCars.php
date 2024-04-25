@@ -2,24 +2,26 @@
 
 namespace App\Telegram\KeyboardActions;
 
-use App\Telegram\Keyboards\CarModelKb;
 use App\Telegram\Keyboards\Pagination\PaginationKb;
+use App\Telegram\Keyboards\Builder\KeyboardBuilder;
 
 use DefStudio\Telegraph\Exceptions\StorageException;
 use DefStudio\Telegraph\Keyboard\Button;
-use DefStudio\Telegraph\Keyboard\Keyboard;
 use DefStudio\Telegraph\Models\TelegraphChat;
 use Illuminate\Support\Collection;
 
 class ShowCars
 {
     private PaginationKb $paginationKb;
+    private KeyboardBuilder $kbBuilder;
     private CarPrice $carPrice;
 
-    public function __construct(CarPrice $carPrice, PaginationKb $paginationKb)
+
+    public function __construct(CarPrice $carPrice, PaginationKb $paginationKb, KeyboardBuilder $kbBuilder)
     {
         $this->paginationKb = $paginationKb;
         $this->carPrice = $carPrice;
+        $this->kbBuilder = $kbBuilder;
     }
 
     /**
@@ -71,13 +73,11 @@ class ShowCars
             return $brand['name'][0] === $initLetter;
         });
 
-        $kb = Keyboard::make();
         $buttons = $this->getButtons($brandsBeginningWithLetter);
-        $len = count($buttons);
-        for ($i = 0; $i < $len; $i += 3) {
-            $step = min(3, $len - $i);
-            $kb->row(array_slice($buttons, $i, $step));
-        }
+
+        $this->kbBuilder->set($buttons, 2);
+        $kb = $this->kbBuilder->build();
+
         $lastMessId = $chat->storage()->get('message_id');
         $kb = $this->paginationKb->addPaginationToKb($kb, 'show_cars');
 

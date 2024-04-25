@@ -2,6 +2,7 @@
 
 namespace App\Telegram\Keyboards;
 
+use App\Telegram\Keyboards\Builder\KeyboardBuilder;
 use App\Telegram\Keyboards\Pagination\PaginationKb;
 
 use DefStudio\Telegraph\Keyboard\Button;
@@ -10,10 +11,13 @@ use DefStudio\Telegraph\Keyboard\Keyboard;
 class PriceKb extends BaseKb
 {
     private PaginationKb $paginationKb;
+    private KeyboardBuilder $kbBuilder;
 
-    public function __construct(PaginationKb $paginationKb)
+
+    public function __construct(PaginationKb $paginationKb, KeyboardBuilder $kbBuilder)
     {
         $this->paginationKb = $paginationKb;
+        $this->kbBuilder = $kbBuilder;
     }
     /**
      * Create an array of buttons for each price_val of the alphabet.
@@ -34,31 +38,11 @@ class PriceKb extends BaseKb
         return $buttons;
     }
 
-    /**
-     * Create a keyboard layout with the buttons arranged in rows.
-     *
-     * @return Keyboard
-     */
-
-    private function buildKbWithoutPagination()
-    {
-        $kb = Keyboard::make();
-        $buttons = $this->getButtons();
-        $len = count($buttons);
-
-        for ($i = 0; $i < $len; $i += 3) {
-            $step = min(3, $len - $i);
-            $kb->row(array_slice($buttons, $i, $step));
-        }
-
-        return $kb;
-
-    }
     public function getInlineKb(): Keyboard
     {
-        $kb = $this->buildKbWithoutPagination();
-
-        return $this->paginationKb->addPaginationToKb($kb, 'set_car_model');
+        $buttons = $this->getButtons();
+        $this->kbBuilder->set($buttons, 3);
+        return $this->kbBuilder->build();
     }
 }
 
