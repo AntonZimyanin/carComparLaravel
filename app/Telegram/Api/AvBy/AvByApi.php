@@ -15,13 +15,12 @@ class AvByApi
 
     private function getAllCarBrands(): mixed
     {
-        // $path = dirname(__DIR__) . '/../../../brand-items-id-name-slug.json';
         $path = base_path('brand-items-id-name-slug.json');
         $json = file_get_contents($path);
         return json_decode($json, true);
     }
 
-    private function findIdBySlug($slug)
+    private function findIdBySlug(string $slug)
     {
         $carData = $this->getAllCarBrands();
 
@@ -61,9 +60,24 @@ class AvByApi
 
         return json_decode($result, true);
     }
+
+    public function getGenerations(string $slug, int $modelId)
+    {
+        $brandId = $this->findIdBySlug($slug);
+        $url = "https://api.av.by/offer-types/cars/catalog/brand-items/{$brandId}/models/{$modelId}/generations";
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, [
+            'X-Api-Key: ' . $this->xApiKey
+        ]);
+        $result = curl_exec($ch);
+        curl_close($ch);
+
+        return json_decode($result, true);
+    }
 }
 
 $av = new AvByApi();
 $models = $av->getModels('audi');
 print_r($models);
-// echo dirname(__DIR__) . '/../../';

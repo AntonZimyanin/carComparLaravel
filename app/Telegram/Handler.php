@@ -114,7 +114,6 @@ class Handler extends WebhookHandler
         );
     }
 
-
     /**
      * @throws StorageException
      */
@@ -165,14 +164,11 @@ class Handler extends WebhookHandler
             'Начать поиск' => 'search',
             'Справка' => 'help',
         ];
-
-
         if (array_key_exists($messageText, $action)) {
             $cmd = $action[$messageText];
             $this->{$cmd}();
             return;
         }
-
         Telegraph::message("Такой команды нет")->send();
     }
 

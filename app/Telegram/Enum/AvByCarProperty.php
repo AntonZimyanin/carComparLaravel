@@ -9,7 +9,6 @@ class AvByCarProperty
     public int $car_price_low;
     public int $car_price_high;
 
-
     public function set(
         string $car_brand,
         string $car_model,

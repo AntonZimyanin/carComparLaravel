@@ -2,14 +2,16 @@
 
 namespace App\Telegram\Keyboards;
 
+use App\Telegram\Keyboards\Builder\Trait\KbWithPagination;
 use App\Telegram\Keyboards\Builder\KeyboardBuilder;
 use App\Telegram\Api\AvBy\AvByApi;
 
 use DefStudio\Telegraph\Keyboard\Button;
-use DefStudio\Telegraph\Keyboard\Keyboard;
 
 class CarModelKb extends BaseKb
 {
+    // Use the KbWithPagination trait
+    use KbWithPagination;
     private AvByApi $av;
     private string $carBrandSlug;
     private KeyboardBuilder $kbBuilder;
@@ -31,6 +33,10 @@ class CarModelKb extends BaseKb
         return $this->av->getModels($this->carBrandSlug);
 
     }
+
+    /**
+     * @return array<Button>
+     */
     public function getButtons(): array
     {
         $carModels = $this->getCarModels();
@@ -43,16 +49,4 @@ class CarModelKb extends BaseKb
         }
         return $buttons;
     }
-
-    /**
-     * return Keyboard with Pagination
-     */
-    public function getKbWithPagination($current_state): Keyboard
-    {
-        $buttons = $this->getButtons();
-        $this->kbBuilder->set($buttons, 2);
-        return $this->kbBuilder->buildWithPagination($current_state);
-    }
-
-
 }

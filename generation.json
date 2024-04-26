@@ -1,0 +1,152 @@
+[
+    {
+        "id": 12861,
+        "name": "I",
+        "yearFrom": 2016,
+        "yearTo": 2020,
+        "carBodyTypes": [
+            {
+                "id": 7,
+                "name": "\u043a\u0430\u0431\u0440\u0438\u043e\u043b\u0435\u0442"
+            },
+            {
+                "id": 18,
+                "name": "\u0440\u043e\u0434\u0441\u0442\u0435\u0440"
+            }
+        ],
+        "hasSevenSeats": false,
+        "hasSixSeats": false
+    }
+]
+[
+    {
+        "id": 38,
+        "name": "\u04211",
+        "yearFrom": 1968,
+        "yearTo": 1973,
+        "carBodyTypes": [
+            {
+                "id": 1,
+                "name": "\u043a\u0443\u043f\u0435"
+            },
+            {
+                "id": 5,
+                "name": "\u0441\u0435\u0434\u0430\u043d"
+            }
+        ],
+        "hasSevenSeats": false,
+        "hasSixSeats": false
+    },
+    {
+        "id": 11783,
+        "name": "\u04211 \u00b7 \u0420\u0435\u0441\u0442\u0430\u0439\u043b\u0438\u043d\u0433",
+        "yearFrom": 1973,
+        "yearTo": 1976,
+        "carBodyTypes": [
+            {
+                "id": 1,
+                "name": "\u043a\u0443\u043f\u0435"
+            },
+            {
+                "id": 5,
+                "name": "\u0441\u0435\u0434\u0430\u043d"
+            }
+        ],
+        "hasSevenSeats": false,
+        "hasSixSeats": false
+    },
+    {
+        "id": 37,
+        "name": "\u04212",
+        "yearFrom": 1976,
+        "yearTo": 1979,
+        "carBodyTypes": [
+            {
+                "id": 2,
+                "name": "\u0443\u043d\u0438\u0432\u0435\u0440\u0441\u0430\u043b"
+            },
+            {
+                "id": 5,
+                "name": "\u0441\u0435\u0434\u0430\u043d"
+            },
+            {
+                "id": 24,
+                "name": "\u0445\u044d\u0442\u0447\u0431\u0435\u043a 3 \u0434\u0432."
+            },
+            {
+                "id": 26,
+                "name": "\u043b\u0438\u0444\u0442\u0431\u0435\u043a"
+            }
+        ],
+        "hasSevenSeats": false,
+        "hasSixSeats": false
+    },
+    {
+        "id": 11784,
+        "name": "\u04212 \u00b7 \u0420\u0435\u0441\u0442\u0430\u0439\u043b\u0438\u043d\u0433",
+        "yearFrom": 1979,
+        "yearTo": 1982,
+        "carBodyTypes": [
+            {
+                "id": 5,
+                "name": "\u0441\u0435\u0434\u0430\u043d"
+            }
+        ],
+        "hasSevenSeats": false,
+        "hasSixSeats": false
+    },
+    {
+        "id": 36,
+        "name": "\u04213",
+        "yearFrom": 1982,
+        "yearTo": 1988,
+        "carBodyTypes": [
+            {
+                "id": 2,
+                "name": "\u0443\u043d\u0438\u0432\u0435\u0440\u0441\u0430\u043b"
+            },
+            {
+                "id": 5,
+                "name": "\u0441\u0435\u0434\u0430\u043d"
+            }
+        ],
+        "hasSevenSeats": false,
+        "hasSixSeats": false
+    },
+    {
+        "id": 39,
+        "name": "\u04213 \u00b7 \u0420\u0435\u0441\u0442\u0430\u0439\u043b\u0438\u043d\u0433",
+        "yearFrom": 1988,
+        "yearTo": 1991,
+        "carBodyTypes": [
+            {
+                "id": 2,
+                "name": "\u0443\u043d\u0438\u0432\u0435\u0440\u0441\u0430\u043b"
+            },
+            {
+                "id": 5,
+                "name": "\u0441\u0435\u0434\u0430\u043d"
+            }
+        ],
+        "hasSevenSeats": false,
+        "hasSixSeats": false
+    },
+    {
+        "id": 35,
+        "name": "4A, C4",
+        "yearFrom": 1990,
+        "yearTo": 1994,
+        "carBodyTypes": [
+            {
+                "id": 2,
+                "name": "\u0443\u043d\u0438\u0432\u0435\u0440\u0441\u0430\u043b"
+            },
+            {
+                "id": 5,
+                "name": "\u0441\u0435\u0434\u0430\u043d"
+            }
+        ],
+        "hasSevenSeats": false,
+        "hasSixSeats": false
+    }
+]

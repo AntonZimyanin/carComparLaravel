@@ -2,14 +2,15 @@
 
 namespace App\Telegram\Keyboards;
 
+use App\Telegram\Keyboards\Builder\Trait\KbWithPagination;
 use App\Telegram\Keyboards\Pagination\PaginationKb;
 use App\Telegram\Keyboards\Builder\KeyboardBuilder;
 
 use DefStudio\Telegraph\Keyboard\Button;
-use DefStudio\Telegraph\Keyboard\Keyboard;
 
 class AlphabetKb extends BaseKb
 {
+    use KbWithPagination;
     private PaginationKb $paginationKb;
     private KeyboardBuilder $kbBuilder;
 
@@ -36,22 +37,5 @@ class AlphabetKb extends BaseKb
         }
 
         return $buttons;
-    }
-
-    /**
-      * Create a keyboard layout with the buttons arranged in rows.
-      *
-      * @return Keyboard
-     *
-     */
-
-    public function getKbWithPagination($current_state): Keyboard
-    {
-        $buttons = $this->getButtons();
-
-        $this->kbBuilder->set($buttons, 3);
-        $kb = $this->kbBuilder->build();
-
-        return $this->paginationKb->addPaginationToKb($kb, $current_state);
     }
 }

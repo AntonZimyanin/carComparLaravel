@@ -43,8 +43,6 @@ class KeyboardBuilder
             $step = min($this->buttonsPerRow, $len - $i);
             $kb->row(array_slice($this->buttons, $i, $step));
         }
-        $kb = $this->paginationKb->addPaginationToKb($kb, $current_state);
-
-        return $kb;
+        return $this->paginationKb->addPaginationToKb($kb, $current_state);
     }
 }

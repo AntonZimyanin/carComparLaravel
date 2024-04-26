@@ -14,13 +14,13 @@ class ShowCars
 {
     private PaginationKb $paginationKb;
     private KeyboardBuilder $kbBuilder;
-    private CarPrice $carPrice;
+    private CarModel $carModel;
 
 
-    public function __construct(CarPrice $carPrice, PaginationKb $paginationKb, KeyboardBuilder $kbBuilder)
+    public function __construct(CarModel $carModel, PaginationKb $paginationKb, KeyboardBuilder $kbBuilder)
     {
         $this->paginationKb = $paginationKb;
-        $this->carPrice = $carPrice;
+        $this->carModel = $carModel;
         $this->kbBuilder = $kbBuilder;
     }
 
@@ -61,8 +61,8 @@ class ShowCars
     {
         $initLetter = $data->get('letter');
 
-        if ($initLetter === null) {
-            $this->carPrice->setCarPrice($chat, $data);
+        if ($initLetter === null || $initLetter === '') {
+            $this->carModel->setCarModel($chat, $data);
             return;
         }
 
