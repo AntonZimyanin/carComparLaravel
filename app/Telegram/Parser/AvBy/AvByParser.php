@@ -15,7 +15,6 @@ class AvByParser
 
     private function getAllCarBrands(): mixed
     {
-        // $path = dirname(__DIR__) . '/../../../brand-items-id-name-slug.json';
         $path = base_path('brand-items-id-name-slug.json');
         $json = file_get_contents($path);
         return json_decode($json, true);
@@ -71,23 +70,6 @@ class AvByParser
                 return $carData[$i]['id'];
             }
         }
-
-        // $left = 0;
-        // $right = count($carData) - 1;
-
-        // while ($left <= $right) {
-        //     $mid = $left + floor(($right - $left) / 2);
-        //     $currentSlug = $carData[$mid]['slug'];
-
-        //     if ($currentSlug === $slug) {
-        //         return $carData[$mid]['id'];
-        //     } elseif ($currentSlug < $slug) {
-        //         $left = $mid + 1;
-        //     } else {
-        //         $right = $mid - 1;
-        //     }
-        // }
-
         return null;
     }
 
@@ -112,9 +94,9 @@ class AvByParser
         if ($car_model_id) {
             $this->url .= "&brands[0][model]=" . $car_model_id;
         }
-        //        if ($car_price_low) {
-        //            $this->url .= "&price_usd[min]=" . $car_price_low;
-        //        }
+        if ($car_price_low > 0) {
+            $this->url .= "&price_usd[min]=" . $car_price_low;
+        }
         if ($car_price_high) {
             $this->url .= "&price_usd[max]=" . $car_price_high;
         }
@@ -172,7 +154,6 @@ class AvByParser
 
                 if ($key == 'sellerName') {
                     $sellerName = $val;
-
                 }
                 if ($key == 'locationName') {
                     $locationName = $val;
@@ -193,8 +174,6 @@ class AvByParser
                 if ($key == 'photos') {
                     $photoUrl = $val[0]['medium']['url'];
                 }
-
-
             }
 
             $chat->photo($photoUrl)->message(
