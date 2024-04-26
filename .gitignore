@@ -21,3 +21,4 @@ yarn-error.log
 .php-cs-fixer.cache
 test.php
 myfile.json
+lang/
