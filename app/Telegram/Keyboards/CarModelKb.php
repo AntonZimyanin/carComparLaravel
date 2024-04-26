@@ -15,7 +15,8 @@ class CarModelKb extends BaseKb
     private KeyboardBuilder $kbBuilder;
 
 
-    public function __construct(AvByApi $av, KeyboardBuilder $kbBuilder) {
+    public function __construct(AvByApi $av, KeyboardBuilder $kbBuilder)
+    {
         $this->av = $av;
         $this->kbBuilder = $kbBuilder;
     }
@@ -43,12 +44,14 @@ class CarModelKb extends BaseKb
         return $buttons;
     }
 
-    public function getInlineKb(): Keyboard
+    /**
+     * return Keyboard with Pagination
+     */
+    public function getKbWithPagination($current_state): Keyboard
     {
         $buttons = $this->getButtons();
         $this->kbBuilder->set($buttons, 2);
-        return $this->kbBuilder->build();
-
+        return $this->kbBuilder->buildWithPagination($current_state);
     }
 
 

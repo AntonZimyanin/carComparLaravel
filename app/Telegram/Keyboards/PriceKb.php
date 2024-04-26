@@ -3,20 +3,16 @@
 namespace App\Telegram\Keyboards;
 
 use App\Telegram\Keyboards\Builder\KeyboardBuilder;
-use App\Telegram\Keyboards\Pagination\PaginationKb;
 
 use DefStudio\Telegraph\Keyboard\Button;
 use DefStudio\Telegraph\Keyboard\Keyboard;
 
 class PriceKb extends BaseKb
 {
-    private PaginationKb $paginationKb;
     private KeyboardBuilder $kbBuilder;
 
-
-    public function __construct(PaginationKb $paginationKb, KeyboardBuilder $kbBuilder)
+    public function __construct(KeyboardBuilder $kbBuilder)
     {
-        $this->paginationKb = $paginationKb;
         $this->kbBuilder = $kbBuilder;
     }
     /**
@@ -38,11 +34,13 @@ class PriceKb extends BaseKb
         return $buttons;
     }
 
-    public function getInlineKb(): Keyboard
+    /**
+     * return Keyboard with Pagination
+     */
+    public function getKbWithPagination($current_state): Keyboard
     {
         $buttons = $this->getButtons();
         $this->kbBuilder->set($buttons, 3);
-        return $this->kbBuilder->build();
+        return  $this->kbBuilder->buildWithPagination($current_state);
     }
 }
-

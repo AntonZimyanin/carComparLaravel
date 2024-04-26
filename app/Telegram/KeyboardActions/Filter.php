@@ -7,7 +7,6 @@ use App\Telegram\Keyboards\AlphabetKb;
 use DefStudio\Telegraph\Exceptions\StorageException;
 use DefStudio\Telegraph\Models\TelegraphChat;
 
-
 class Filter
 {
     private AlphabetKb $alphabetKb;
@@ -25,6 +24,6 @@ class Filter
         $mess = "Выбырите *первую букву* марки машины";
         $lastMessId = $chat->storage()->get('message_id');
 
-        $chat->edit($lastMessId)->message($mess)->keyboard( $this->alphabetKb->getInlineKb())->send();
+        $chat->edit($lastMessId)->message($mess)->keyboard($this->alphabetKb->getKbWithPagination('add_filter'))->send();
     }
 }

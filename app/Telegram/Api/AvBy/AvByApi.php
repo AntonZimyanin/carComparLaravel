@@ -1,10 +1,11 @@
 <?php
 
 namespace App\Telegram\Api\AvBy;
-/* 
+
+/*
 naming file {model}-av-by.json or {model}-avito.json
-TODO : 
-- change file path 
+TODO :
+- change file path
 
 */
 
@@ -63,6 +64,6 @@ class AvByApi
 }
 
 $av = new AvByApi();
-$models = $av->getModels('audi');   
+$models = $av->getModels('audi');
 print_r($models);
 // echo dirname(__DIR__) . '/../../';

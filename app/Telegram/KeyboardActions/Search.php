@@ -11,9 +11,10 @@ class Search
 {
     private AvByCarProperty $property;
     private AvByParser $parser;
-    public function __construct(AvByCarProperty $property,
-AvByParser $parser)
-    {
+    public function __construct(
+        AvByCarProperty $property,
+        AvByParser $parser
+    ) {
         $this->property = $property;
         $this->parser = $parser;
     }
@@ -30,11 +31,11 @@ AvByParser $parser)
 
         $p = $this->property->get();
         $this->parser->set(
-                 $car_brand,
-        $car_model_id,
-        $car_price_low,
-        10000000
-    );
+            $car_brand,
+            $car_model_id,
+            $car_price_low,
+            10000000
+        );
         $chat->message("Поиск начат
         {$car_brand}\n
         {$car_model_id}

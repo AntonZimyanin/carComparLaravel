@@ -12,7 +12,6 @@ use Illuminate\Support\Collection;
 
 use App\Telegram\Parser\AvBy\AvByParser;
 
-
 //TODO : save data to DB or Redis cache
 class CarPrice
 {
@@ -28,9 +27,9 @@ class CarPrice
     /**
      * @throws StorageException
      */
-    public function setCarPrice(TelegraphChat $chat, Collection|null $data): void
+    public function setCarPrice(TelegraphChat $chat, Collection $data): void
     {
-        if ($data == null) {
+        if ($data->get("car_price")) {
             return;
         }
         $car_model_id = $chat->storage()->get('car_model_id');

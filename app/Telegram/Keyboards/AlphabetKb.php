@@ -38,21 +38,20 @@ class AlphabetKb extends BaseKb
         return $buttons;
     }
 
-   /**
-     * Create a keyboard layout with the buttons arranged in rows.
+    /**
+      * Create a keyboard layout with the buttons arranged in rows.
+      *
+      * @return Keyboard
      *
-     * @return Keyboard
-    *
-    */
+     */
 
-    public function getInlineKb(): Keyboard
+    public function getKbWithPagination($current_state): Keyboard
     {
         $buttons = $this->getButtons();
 
         $this->kbBuilder->set($buttons, 3);
         $kb = $this->kbBuilder->build();
 
-        return $this->paginationKb->addPaginationToKb($kb, 'add_filter');
+        return $this->paginationKb->addPaginationToKb($kb, $current_state);
     }
 }
-

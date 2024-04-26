@@ -2,8 +2,8 @@
 
 namespace App\Telegram\Enum;
 
-class AvByCarProperty {
-
+class AvByCarProperty
+{
     public string $car_brand;
     public string $car_model;
     public int $car_price_low;
@@ -23,8 +23,8 @@ class AvByCarProperty {
         $this->car_price_high = $car_price_high;
     }
 
-public function get(): AvByCarProperty
-{
+    public function get(): AvByCarProperty
+    {
         return $this;
     }
 }

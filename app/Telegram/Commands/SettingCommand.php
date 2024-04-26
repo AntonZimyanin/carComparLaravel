@@ -7,10 +7,8 @@ use App\Telegram\Keyboards\SettingKb;
 use DefStudio\Telegraph\Exceptions\StorageException;
 use DefStudio\Telegraph\Models\TelegraphChat;
 
-
 class SettingCommand
 {
-
     private SettingKb $kb;
     private string $mess;
 

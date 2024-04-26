@@ -11,13 +11,14 @@ function getAllCarBrands(): mixed
 
 $arr = getAllCarBrands();
 // $init_char = 'a';
-// $letter_arr = array_filter($arr, function($brand) use ($init_char){ 
+// $letter_arr = array_filter($arr, function($brand) use ($init_char){
 //     return $brand['slug'][0] == $init_char;
 // });
 
 // print_r($letter_arr);
 
-function findIdBySlug($slug, $carData) {
+function findIdBySlug($slug, $carData)
+{
     $left = 0;
     $right = count($carData) - 1;
 

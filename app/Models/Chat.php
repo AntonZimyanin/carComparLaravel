@@ -6,6 +6,4 @@ use DefStudio\Telegraph\Models\TelegraphChat as BaseModel;
 
 class Chat extends BaseModel
 {
-    
-
 }

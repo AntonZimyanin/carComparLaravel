@@ -1,4 +1,5 @@
 <?php
+
 //
 //
 //
@@ -95,7 +96,6 @@
 ////    }
 //}
 
-
 namespace App\Telegram\Parser\AvBy;
 
 use App\Telegram\Enum\AvByCarProperty;
@@ -105,7 +105,6 @@ use DOMXPath;
 
 class AvByParser
 {
-
     private string $url;
 
     public function __construct()
@@ -217,4 +216,3 @@ Public Url: {$publicUrl}";
 
 $a = new AvByParser();
 $a->parse();
-

@@ -15,22 +15,22 @@ class PaginationKb
         $this->countItems = count($this->itemsArr);
     }
 
-    public function addPaginationToKb(Keyboard $kb, string $currentPageStr): Keyboard
+    public function addPaginationToKb(Keyboard $kb, string $currentPageName): Keyboard
     {
-        $page = array_search($currentPageStr, $this->itemsArr);
+        $page = array_search($currentPageName, $this->itemsArr);
 
         if ($page == 0) {
             $kb->row([
                 Button::make('Previous')->action('setting'),
-                Button::make('Next')->action($this->itemsArr[$page + 1])->param('page', $page + 1),
+                Button::make('Next')->action($this->itemsArr[$page + 1]),
 
             ]);
         }
 
         if ($page > 0 && $page < $this->countItems - 1) {
             $kb->row([
-                Button::make('Previous')->action('change_page')->param('page', $page - 1),
-                Button::make('Next')->action('car_price')->param('page', $page + 1),
+                Button::make('Previous')->action($this->itemsArr[$page - 1]),
+                Button::make('Next')->action($this->itemsArr[$page + 1]),
 
             ]);
         }
@@ -38,7 +38,10 @@ class PaginationKb
 
         if ($page == $this->countItems - 1) {
             $kb->row([
-                    Button::make('Вернуться к настройкам')->action('back_to_settings'),
+                Button::make('Вернуться к настройкам')->action($this->itemsArr[$page - 1]),
+            ])
+            ->row([
+                Button::make('Добавить фильтр')->action('add_filter'),
             ]);
         }
 

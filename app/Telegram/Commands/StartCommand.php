@@ -1,12 +1,10 @@
 <?php
 
-
 namespace App\Telegram\Commands;
 
 use App\Telegram\Keyboards\StartKb;
 
 use DefStudio\Telegraph\Models\TelegraphChat;
-
 
 class StartCommand
 {

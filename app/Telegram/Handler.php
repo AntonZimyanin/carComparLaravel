@@ -60,9 +60,6 @@ class Handler extends WebhookHandler
      */
     public function start(): void
     {
-//        $this->chat->photo("https://avcdn.av.by/advertmedium/0002/7126/7850.jpg")
-//            ->message("Привет! Я помогу тебе найти автомобиль")
-//            ->send();
         $this->startCommand->sendCommand($this->chat);
     }
 
@@ -170,13 +167,13 @@ class Handler extends WebhookHandler
         ];
 
 
-         if (array_key_exists($messageText, $action)) {
-             $cmd = $action[$messageText];
-             $this->{$cmd}();
-             return;
-         }
+        if (array_key_exists($messageText, $action)) {
+            $cmd = $action[$messageText];
+            $this->{$cmd}();
+            return;
+        }
 
-         Telegraph::message("Такой команды нет")->send();
+        Telegraph::message("Такой команды нет")->send();
     }
 
 

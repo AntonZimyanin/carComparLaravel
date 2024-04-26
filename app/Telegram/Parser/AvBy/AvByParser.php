@@ -98,12 +98,12 @@ class AvByParser
     }
     //https://cars.av.by/audi/a2
     //https://cars.av.by/filter?brands[0][brand]=1444&brands[0][model]=1451&price_usd[min]=1&price_usd[max]=111111
-    public function set(    string $car_brand,
-                            string $car_model_id,
-                            int $car_price_low,
-                            int $car_price_high
-    ): void
-    {
+    public function set(
+        string $car_brand,
+        string $car_model_id,
+        int $car_price_low,
+        int $car_price_high
+    ): void {
         $brand_id = $this->findIdBySlug($car_brand);
 
         if ($car_brand) {
@@ -112,9 +112,9 @@ class AvByParser
         if ($car_model_id) {
             $this->url .= "&brands[0][model]=" . $car_model_id;
         }
-//        if ($car_price_low) {
-//            $this->url .= "&price_usd[min]=" . $car_price_low;
-//        }
+        //        if ($car_price_low) {
+        //            $this->url .= "&price_usd[min]=" . $car_price_low;
+        //        }
         if ($car_price_high) {
             $this->url .= "&price_usd[max]=" . $car_price_high;
         }
@@ -126,7 +126,7 @@ class AvByParser
     }
     public function parse(TelegraphChat $chat): void
     {
-//        $url = "https://cars.av.by/filter?brands[0][brand]=6&brands[0][model]=5812&brands[0][generation]=4316&price_usd[max]=20000";
+        //        $url = "https://cars.av.by/filter?brands[0][brand]=6&brands[0][model]=5812&brands[0][generation]=4316&price_usd[max]=20000";
 
         $handle = curl_init($this->url);
         curl_setopt($handle, CURLOPT_RETURNTRANSFER, true);
@@ -206,7 +206,8 @@ Model: {$model}
 Generation: {$generation}
 Year: {$year}
 Price: {$price}
-Public Url: {$publicUrl}")->send();
+Public Url: {$publicUrl}"
+            )->send();
         }
     }
 }
