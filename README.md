@@ -12,9 +12,13 @@ ngrok http http://localhost:8080
 
 3. Set the url (for example: https://c050-217-21-43-163.ngrok-free.app) to the field 'APP_URL=' in .env
 
-4. You will done Publish and launch required migrations: (https://github.com/defstudio/telegraph?tab=readme-ov-file#installation)
+4. You will done `Publish and launch required migrations`: (https://github.com/defstudio/telegraph?tab=readme-ov-file#installation)
 
-5. Start telegram project 
+5. Add token for the bot 
+``` 
+php artisan telegraph:new-bot
+```
+6. Start telegram project 
 ```
 php artisan serve --port 8080
 ```
