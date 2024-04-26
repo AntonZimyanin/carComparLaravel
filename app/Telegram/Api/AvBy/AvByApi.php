@@ -2,13 +2,6 @@
 
 namespace App\Telegram\Api\AvBy;
 
-/*
-naming file {model}-av-by.json or {model}-avito.json
-TODO :
-- change file path
-
-*/
-
 class AvByApi
 {
     private string $xApiKey = 'y5b3b55fdce273d03ec1d22';
@@ -77,7 +70,3 @@ class AvByApi
         return json_decode($result, true);
     }
 }
-
-$av = new AvByApi();
-$models = $av->getModels('audi');
-print_r($models);

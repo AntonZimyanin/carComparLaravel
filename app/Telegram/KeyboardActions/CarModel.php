@@ -26,9 +26,12 @@ class CarModel
         $car_model_id = '';
         $lastMessId = $chat->storage()->get('message_id');
 
-        if ($data->get("car_model_id") && $data->get("car_model_id") !== '') {
+        if ($data->get("car_model_id")) {
             $car_model_id = $data->get("car_model_id");
             $chat->storage()->set('car_model_id', $car_model_id);
+
+            $chat->storage()->set('car_price_state', false);
+
         }
         $mess = "$car_model_id
 *Выбырите цену*

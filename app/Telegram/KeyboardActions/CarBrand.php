@@ -30,7 +30,7 @@ class CarBrand
     {
         $lastMessId = $chat->storage()->get('message_id');
 
-        if ($data->get("car_brand") && $data->get("car_brand") !== '') {
+        if ($data->get("car_brand")) {
             $car_brand_text = $data->get("car_brand");
             $chat->storage()->set('car_brand_text', $car_brand_text);
 

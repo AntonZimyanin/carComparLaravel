@@ -61,7 +61,7 @@ class ShowCars
     {
         $initLetter = $data->get('letter');
 
-        if ($initLetter === null || $initLetter === '') {
+        if (empty($initLetter)) {
             $this->carModel->setCarModel($chat, $data);
             return;
         }

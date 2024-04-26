@@ -8,8 +8,14 @@ use DefStudio\Telegraph\Models\TelegraphChat;
 use DOMDocument;
 use DOMXPath;
 
+
+//TODO:
+// - add av by api fot this class and change access to av by field
+// - review the loop 114
+
 class AvByParser
 {
+    private string $url;
     private string $xApiKey = 'y5b3b55fdce273d03ec1d22';
 
 
@@ -43,7 +49,6 @@ class AvByParser
         return null;
     }
 
-
     public function getModels($brandSlug)
     {
         $brandId = $this->findIdBySlugModel($brandSlug);
@@ -73,7 +78,6 @@ class AvByParser
         return null;
     }
 
-    private string $url;
     public function __construct()
     {
         $this->url = "https://cars.av.by/filter";
@@ -149,9 +153,7 @@ class AvByParser
         $price = '';
         $photoUrl = '';
         foreach ($extractedData[0]['props']['initialState']['filter']['main']['adverts'] as $fields) {
-            $chat->message("Найдено{$this->url}")->send();
             foreach ($fields as $key => $val) {
-
                 if ($key == 'sellerName') {
                     $sellerName = $val;
                 }
