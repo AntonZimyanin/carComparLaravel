@@ -66,12 +66,12 @@ class ShowCars
             return;
         }
 
-
-        $mess = "*$initLetter*";
         $brands = $this->getAllCarBrands();
         $brandsBeginningWithLetter = array_filter($brands, function ($brand) use ($initLetter) {
             return $brand['name'][0] === $initLetter;
         });
+
+        $mess = empty($brandsBeginningWithLetter) ? "Бренда с такой буквой нет" : "*$initLetter*";
 
         $buttons = $this->getButtons($brandsBeginningWithLetter);
 

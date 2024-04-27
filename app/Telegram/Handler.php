@@ -177,13 +177,13 @@ class Handler extends WebhookHandler
         if ($this->chat->storage()->get('car_price_state') === false) {
             $res = explode(' ', $messageText);
             if (count($res) == 2 && is_numeric($res[0]) && is_numeric($res[1])) {
-                Telegraph::message("ALL OK")->send();
 
                 $this->chat->storage()->set('car_price_low', $res[0]);
                 $this->chat->storage()->set('car_price_high', $res[1]);
                 $this->carPrice->setCarPrice($this->chat, $this->data,);
                 return;
             }
+            Telegraph::message("Введите ценовой диапазон в формате *от до*\nПример: 100 200")->send();
         }
 
         Telegraph::message("Такой команды нет")->send();

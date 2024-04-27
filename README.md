@@ -31,6 +31,9 @@ php artisan serve --port 8080
 
 # TODO: 
 
+        //TODO: create logic for back to previous page : create new func or change logic for current func
+
+
     - find model id +
     - keyboard builder + 
     - optimiz add pagination + 

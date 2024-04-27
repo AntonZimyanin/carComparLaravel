@@ -28,24 +28,13 @@ class Search
         $car_price_low = 0;
         $car_price_high = $chat->storage()->get('car_price_high');
 
-
-        $p = $this->property->get();
         $this->parser->set(
             $car_brand,
             $car_model_id,
             $car_price_low,
-            10000000
+            $car_price_high
         );
-        $chat->message("Поиск начат
-        {$car_brand}\n
-        {$car_model_id}
-        {$this->parser->url_r()}")
-            ->send()    ;
-
-
-
-
-        $chat->message("{$this->parser->url_r()}")->send();
+        $chat->message("Поиск начат...")->send();
 
         $this->parser->parse($chat);
     }

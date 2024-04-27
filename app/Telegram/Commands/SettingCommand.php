@@ -32,6 +32,11 @@ class SettingCommand
     {
         $kb = $this->kb->getSettings();
 
+        if ($chat->storage()->get('message_id')) {
+            $this->backToSettings($chat);
+            return;
+        }
+
         $messId = $chat->message($this->mess)->keyboard(
             $kb
         )->send()->telegraphMessageId();
