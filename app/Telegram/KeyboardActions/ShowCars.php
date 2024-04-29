@@ -71,7 +71,7 @@ class ShowCars
             return $brand['name'][0] === $initLetter;
         });
 
-        $mess = empty($brandsBeginningWithLetter) ? "Бренда с такой буквой нет" : "*$initLetter*";
+        $mess = empty($brandsBeginningWithLetter) ? "Бренда с такой буквой нет" : "Машины начинаются на букву *$initLetter*";
 
         $buttons = $this->getButtons($brandsBeginningWithLetter);
 

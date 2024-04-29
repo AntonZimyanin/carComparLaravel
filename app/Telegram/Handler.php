@@ -6,6 +6,7 @@ use App\Telegram\Commands\StartCommand;
 use App\Telegram\Commands\SettingCommand;
 
 
+use App\Telegram\Enum\AvByCarProperty;
 use App\Telegram\KeyboardActions\Search;
 
 use App\Telegram\KeyboardActions\Filter;
@@ -26,6 +27,7 @@ class Handler extends WebhookHandler
     private SettingCommand $settingCommand;
 
     //action
+    private AvByCarProperty $property;
     private Filter $filter;
     private CarBrand $carBrand;
     private CarModel $carModel;
@@ -41,7 +43,8 @@ class Handler extends WebhookHandler
         CarModel $carModel,
         CarPrice $carPrice,
         ShowCars $showCars,
-        Search $search
+        Search $search,
+        AvByCarProperty $property
     ) {
         parent::__construct();
         $this->startCommand = $startCommand;
@@ -53,6 +56,7 @@ class Handler extends WebhookHandler
         $this->carPrice = $carPrice;
         $this->showCars = $showCars;
         $this->search = $search;
+        $this->property = $property;
     }
 
     /**
@@ -146,8 +150,21 @@ class Handler extends WebhookHandler
      */
     public function search(): void
     {
+        $carModelId = $this->chat->storage()->get('car_model_id');
+        $carBrand = $this->chat->storage()->get('car_brand_text');
+        $carPriceLow = 0;
+        $carPriceHigh = $this->chat->storage()->get('car_price_high');
+
+        $this->property->set(
+            $carBrand,
+            $carModelId,
+            $carPriceLow, 
+            $carPriceHigh,
+        );
+
         $this->search->search(
             $this->chat,
+            $this->property,
         );
 
     }
@@ -164,9 +181,9 @@ class Handler extends WebhookHandler
     {
         $messageText = $text->value();
         $action = [
-            'Настройки' => 'setting',
-            'Начать поиск' => 'search',
-            'Справка' => 'help',
+            '⚙️ Настройки' => 'setting',
+            '🔍 Начать поиск' => 'search',
+            'ℹ️ Справка' => 'help',
         ];
         if (array_key_exists($messageText, $action)) {
             $cmd = $action[$messageText];

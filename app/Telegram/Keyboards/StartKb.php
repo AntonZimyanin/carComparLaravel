@@ -11,11 +11,11 @@ class StartKb
     {
         return ReplyKeyboard::make()
             ->row([
-                ReplyButton::make('Настройки'),
+                ReplyButton::make('⚙️ Настройки'),
             ])
             ->row([
-                ReplyButton::make('Начать поиск'),
-                ReplyButton::make('Справка')
+                ReplyButton::make('🔍 Начать поиск'),
+                ReplyButton::make('ℹ️ Справка')
             ])->resize();
     }
 }

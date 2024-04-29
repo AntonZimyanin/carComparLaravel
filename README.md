@@ -33,6 +33,10 @@ php artisan serve --port 8080
 
         //TODO: create logic for back to previous page : create new func or change logic for current func
 
+        - change forget message id logic 
+        - add save user with begin to talk
+        - add cars-keyboard
+
 
     - find model id +
     - keyboard builder + 

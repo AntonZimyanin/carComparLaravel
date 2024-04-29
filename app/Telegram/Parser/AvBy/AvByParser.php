@@ -85,31 +85,24 @@ class AvByParser
     //https://cars.av.by/audi/a2
     //https://cars.av.by/filter?brands[0][brand]=1444&brands[0][model]=1451&price_usd[min]=1&price_usd[max]=111111
     public function set(
-        string $car_brand,
-        string $car_model_id,
-        int $car_price_low,
-        int $car_price_high
+        AvByCarProperty $p
     ): void {
-        $brand_id = $this->findIdBySlug($car_brand);
+        $brand_id = $this->findIdBySlug($p->car_brand);
 
-        if ($car_brand) {
+        if ($p->car_brand) {
             $this->url .= "?brands[0][brand]=" . $brand_id;
         }
-        if ($car_model_id) {
-            $this->url .= "&brands[0][model]=" . $car_model_id;
+        if ($p->car_model_id) {
+            $this->url .= "&brands[0][model]=" . $p->car_model_id;
         }
-        if ($car_price_low > 0) {
-            $this->url .= "&price_usd[min]=" . $car_price_low;
+        if ($p->car_price_low > 0) {
+            $this->url .= "&price_usd[min]=" . $p->car_price_low;
         }
-        if ($car_price_high) {
-            $this->url .= "&price_usd[max]=" . $car_price_high;
+        if ($p->car_price_high) {
+            $this->url .= "&price_usd[max]=" . $p->car_price_high;
         }
     }
 
-    public function url_r()
-    {
-        return $this->url;
-    }
     public function parse(TelegraphChat $chat): void
     {
         //        $url = "https://cars.av.by/filter?brands[0][brand]=6&brands[0][model]=5812&brands[0][generation]=4316&price_usd[max]=20000";

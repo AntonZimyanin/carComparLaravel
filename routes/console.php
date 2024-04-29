@@ -21,6 +21,7 @@ Artisan::command('setup', function () {
         '/start' => '/start',
         '/setting' => '/start',
         '/help' =>'/start',
+        '/search' =>'/search',
     ])->send());
 });
 
