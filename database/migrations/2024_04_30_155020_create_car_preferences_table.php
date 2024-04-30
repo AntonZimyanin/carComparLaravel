@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('car_preferences', function (Blueprint $table) {
             $table->id();
-            
+
             $table->foreignId('telegram_id')
                 ->constrained('users', 'telegram_id')
                 ->cascadeOnDelete();

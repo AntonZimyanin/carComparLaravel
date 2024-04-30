@@ -8,7 +8,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 class User extends Authenticatable
 {
     public $incrementing = false;
-    protected $keyType = 'string';
+    protected $keyType = 'integer';
 
     protected $fillable =   [
         'telegram_id',

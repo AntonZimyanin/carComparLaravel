@@ -10,12 +10,7 @@ use DefStudio\Telegraph\Models\TelegraphChat;
 class SettingCommand
 {
     private SettingKb $kb;
-    private string $mess;
-
-    public function __construct(SettingKb $kb)
-    {
-        $this->kb = $kb;
-        $this->mess = "
+    const mess = "
 *Настройки*\n
 Добавление нескольких фильтров позволит Вам создавать комбинации из разных параметров.\n
 👁 - посмотреть текущую настройку
@@ -23,21 +18,25 @@ class SettingCommand
 📑 - создать копию фильтра
 ❌ - удалить фильтр
 ";
+
+    public function __construct(SettingKb $kb)
+    {
+        $this->kb = $kb;
     }
 
     /**
      * @throws StorageException
      */
-    public function sendCommand(TelegraphChat $chat): void
+    public function sendCommand(TelegraphChat $chat, int $telegramId=null): void
     {
-        $kb = $this->kb->getSettings();
+        $kb = $this->kb->getSettings($telegramId);
 
         if ($chat->storage()->get('message_id')) {
-            $this->backToSettings($chat);
+            $this->backToSettings($chat, $telegramId);
             return;
         }
 
-        $messId = $chat->message($this->mess)->keyboard(
+        $messId = $chat->message(self::mess)->keyboard(
             $kb
         )->send()->telegraphMessageId();
         $chat->storage()->set('message_id', $messId);
@@ -46,12 +45,12 @@ class SettingCommand
     /**
      * @throws StorageException
      */
-    public function backToSettings(TelegraphChat $chat): void
+    public function backToSettings(TelegraphChat $chat, int $telegramId=null): void
     {
-        $kb = $this->kb->getSettings();
+        $kb = $this->kb->getSettings($telegramId);
         $lastMessId = $chat->storage()->get('message_id');
 
-        $chat->edit($lastMessId)->message($this->mess)->keyboard(
+        $chat->edit($lastMessId)->message(self::mess)->keyboard(
             $kb
         )->send()->telegraphMessageId();
     }

@@ -2,6 +2,7 @@
 
 namespace App\Telegram\KeyboardActions;
 
+use App\Http\Controllers\CarPreferenceController;
 use App\Telegram\Keyboards\Pagination\PaginationKb;
 use App\Telegram\Enum\AvByCarProperty;
 
@@ -10,19 +11,22 @@ use DefStudio\Telegraph\Exceptions\StorageException;
 use DefStudio\Telegraph\Models\TelegraphChat;
 use Illuminate\Support\Collection;
 
-use App\Telegram\Parser\AvBy\AvByParser;
 
 //TODO : save data to DB or Redis cache
 class CarPrice
 {
+    private AvByCarProperty $property;
+    private CarPreferenceController $carPrefController;
     private PaginationKb $paginationKb;
     const SETUP_COMPLETE = '*Настройка завершена!*';
     const YOUR_SETTINGS = 'Ваши настройки️:';
     const PREFERRED_CARS = 'Предпочитаемые машины:';
 
-    public function __construct(PaginationKb $paginationKb)
+    public function __construct(PaginationKb $paginationKb, CarPreferenceController $carPrefController, AvByCarProperty $property)
     {
+        $this->carPrefController = $carPrefController;
         $this->paginationKb = $paginationKb;
+        $this->property = $property;
     }
 
     private function appendToMess(string $key, string $label, string &$mess, TelegraphChat $chat): string|int
@@ -59,21 +63,5 @@ class CarPrice
         $kb = $this->paginationKb->addPaginationToKb(Keyboard::make(), "set_car_price");
         $chat->edit($lastMessId)->message($mess)->keyboard($kb)->send();
 
-        // $this->parser->set(
-        //     $car_brand,
-        //     $car_model_id,
-        //     $car_price_low,
-        //     $car_price_high,
-        // );
-        // $chat->message($this->parser->url_r())->send();
-        // $this->parser->parse($chat);
-
-        // write data to db
-        // $carProperty = new AvByCarProperty(
-        //     $car_brand,
-        //     $car_model,
-        //     0,
-        //     $car_price
-        // );
     }
 }

@@ -2,9 +2,10 @@
 
 namespace App\Telegram;
 
+use App\Http\Controllers\UserController;
+
 use App\Telegram\Commands\StartCommand;
 use App\Telegram\Commands\SettingCommand;
-
 
 use App\Telegram\Enum\AvByCarProperty;
 use App\Telegram\KeyboardActions\Search;
@@ -22,6 +23,9 @@ use Illuminate\Support\Stringable;
 
 class Handler extends WebhookHandler
 {
+    //contoollers
+    private UserController $userController;
+
     //commands
     private StartCommand $startCommand;
     private SettingCommand $settingCommand;
@@ -44,7 +48,8 @@ class Handler extends WebhookHandler
         CarPrice $carPrice,
         ShowCars $showCars,
         Search $search,
-        AvByCarProperty $property
+        AvByCarProperty $property,
+        UserController $userController
     ) {
         parent::__construct();
         $this->startCommand = $startCommand;
@@ -57,6 +62,8 @@ class Handler extends WebhookHandler
         $this->showCars = $showCars;
         $this->search = $search;
         $this->property = $property;
+
+        $this->userController = $userController;
     }
 
     /**
@@ -65,6 +72,14 @@ class Handler extends WebhookHandler
     public function start(): void
     {
         $this->startCommand->sendCommand($this->chat);
+        $telegramId = $this->message->from()->id();
+//        $this->chat->chat_id;
+        Telegraph::message($this->chat->chat_id)->send();
+        if (
+           !($this->userController->getUserByTelegramId($telegramId))
+        ) {
+            $this->userController->create($telegramId);
+        }
     }
 
     /**
@@ -74,6 +89,7 @@ class Handler extends WebhookHandler
     {
         $this->settingCommand->sendCommand(
             $this->chat,
+            $this->chat->chat_id
         );
     }
 
@@ -126,6 +142,7 @@ class Handler extends WebhookHandler
         $this->carPrice->setCarPrice(
             $this->chat,
             $this->data,
+
         );
     }
 
@@ -142,6 +159,7 @@ class Handler extends WebhookHandler
     {
         $this->settingCommand->backToSettings(
             $this->chat,
+            $this->chat->chat_id,
         );
     }
 
@@ -156,9 +174,10 @@ class Handler extends WebhookHandler
         $carPriceHigh = $this->chat->storage()->get('car_price_high');
 
         $this->property->set(
+            $this->chat->chat_id,
             $carBrand,
             $carModelId,
-            $carPriceLow, 
+            $carPriceLow,
             $carPriceHigh,
         );
 
