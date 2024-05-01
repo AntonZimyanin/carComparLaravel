@@ -71,10 +71,13 @@ class Handler extends WebhookHandler
      */
     public function start(): void
     {
+        
         $this->startCommand->sendCommand($this->chat);
         $telegramId = $this->message->from()->id();
 //        $this->chat->chat_id;
-        Telegraph::message($this->chat->chat_id)->send();
+
+        $this->chat->storage->set('telegramId', $telegramId);
+        $this->chat->message($this->message->from()->id())->send();
         if (
            !($this->userController->getUserByTelegramId($telegramId))
         ) {
@@ -87,9 +90,10 @@ class Handler extends WebhookHandler
      */
     public function setting(): void
     {
+        $telegramId = $this->chat->storage->get('telegramId');
         $this->settingCommand->sendCommand(
             $this->chat,
-            $this->chat->chat_id
+            $telegramId
         );
     }
 
@@ -157,9 +161,11 @@ class Handler extends WebhookHandler
      */
     public function back_to_settings(): void
     {
+        $telegramId = $this->chat->storage->get('telegramId');
+
         $this->settingCommand->backToSettings(
             $this->chat,
-            $this->chat->chat_id,
+            $telegramId,
         );
     }
 
@@ -168,19 +174,7 @@ class Handler extends WebhookHandler
      */
     public function search(): void
     {
-        $carModelId = $this->chat->storage()->get('car_model_id');
-        $carBrand = $this->chat->storage()->get('car_brand_text');
-        $carPriceLow = 0;
-        $carPriceHigh = $this->chat->storage()->get('car_price_high');
-
-        $this->property->set(
-            $this->chat->chat_id,
-            $carBrand,
-            $carModelId,
-            $carPriceLow,
-            $carPriceHigh,
-        );
-
+    
         $this->search->search(
             $this->chat,
             $this->property,

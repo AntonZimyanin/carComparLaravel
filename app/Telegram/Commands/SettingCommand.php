@@ -27,14 +27,9 @@ class SettingCommand
     /**
      * @throws StorageException
      */
-    public function sendCommand(TelegraphChat $chat, int $telegramId=null): void
+    public function sendCommand($chat, int $telegramId=null): void
     {
         $kb = $this->kb->getSettings($telegramId);
-
-        if ($chat->storage()->get('message_id')) {
-            $this->backToSettings($chat, $telegramId);
-            return;
-        }
 
         $messId = $chat->message(self::mess)->keyboard(
             $kb
@@ -52,6 +47,6 @@ class SettingCommand
 
         $chat->edit($lastMessId)->message(self::mess)->keyboard(
             $kb
-        )->send()->telegraphMessageId();
+        )->send();
     }
 }

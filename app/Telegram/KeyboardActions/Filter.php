@@ -26,7 +26,7 @@ class Filter
     {
         $mess = "Выбырите *первую букву* марки машины";
         $lastMessId = $chat->storage()->get('message_id');
-        $kb = $this->alphabetKb->getKbWithPagination('add_filter', 3);
+        $kb = $this->alphabetKb->getKbWithPagination('add_filter', 'show_cars', 3);
 
         $chat->edit($lastMessId)->message($mess)->keyboard($kb)->send();
     }

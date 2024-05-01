@@ -13,11 +13,11 @@ trait KbWithPagination
      * @param int $buttonsPerRow
      * @return Keyboard
      */
-    public function getKbWithPagination(string $current_state, int $buttonsPerRow): Keyboard
+    public function getKbWithPagination(string $currPage, string $nextPage, int $buttonsPerRow): Keyboard
     {
         $buttons = $this->getButtons();
         $this->kbBuilder->set($buttons, $buttonsPerRow);
-        return  $this->kbBuilder->buildWithPagination($current_state);
+        return  $this->kbBuilder->buildWithPagination($currPage, $nextPage);
     }
 
 }

@@ -38,16 +38,12 @@ class CarBrand
 
             $kb = $this->carModelKb;
             $kb->setCarBrand($car_brand_text);
-            $kb = $kb->getKbWithPagination('set_car_brand', 2);
+            $kb = $kb->getKbWithPagination('set_car_brand', 'set_car_model', 2);
 
             $chat->edit($lastMessId)->message($mess)->keyboard($kb)->send();
 
             return;
-        }
-
-
-        //TODO: create logic for back to previous page
-//        if ()
+        }   
 
         $this->setCarModel->setCarModel($chat, $data);
     }

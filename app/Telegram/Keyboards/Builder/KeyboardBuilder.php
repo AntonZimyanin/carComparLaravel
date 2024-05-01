@@ -35,7 +35,7 @@ class KeyboardBuilder
     }
 
 
-    public function buildWithPagination(string $current_state): Keyboard
+    public function buildWithPagination(string $currPage, string $nextPage): Keyboard
     {
         $kb = Keyboard::make();
         $len = count($this->buttons);
@@ -43,6 +43,6 @@ class KeyboardBuilder
             $step = min($this->buttonsPerRow, $len - $i);
             $kb->row(array_slice($this->buttons, $i, $step));
         }
-        return $this->paginationKb->addPaginationToKb($kb, $current_state);
+        return $this->paginationKb->addPaginationToKb($kb, $currPage, $nextPage);
     }
 }

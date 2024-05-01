@@ -31,8 +31,13 @@ class CarModel
             $chat->storage()->set('car_model_id', $car_model_id);
 
             $chat->storage()->set('car_price_state', false);
-
         }
+
+        if (!($car_model_id)){ 
+            $chat->action('back_to_settings');
+        }
+
+        
         $mess = "$car_model_id
 *Выбырите цену*
 
@@ -44,7 +49,7 @@ class CarModel
         ;
 
 
-        $kb = $this->priceKb->getKbWithPagination('set_car_model', 3);
+        $kb = $this->priceKb->getKbWithPagination('set_car_model', 'set_car_price', 3);
         $chat->edit($lastMessId)->message($mess)->keyboard($kb)->send();
     }
 }

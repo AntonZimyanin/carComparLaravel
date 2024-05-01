@@ -1,3 +1,2 @@
-php artisan cache:clear && \
-php artisan telegraph:set-webhook && \
-php artisan serve --port=8080   
+sudo rm -rf storage/app/telegraph/TelegraphChat/ && \
+php artisan serve --port=8080

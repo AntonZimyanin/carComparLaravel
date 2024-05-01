@@ -60,7 +60,7 @@ class CarPrice
         }
 
         $mess .= "Чтобы подписаться на рассылку, воспользуйтесь командой /search или кнопкой 🔍 Начать поиск";
-        $kb = $this->paginationKb->addPaginationToKb(Keyboard::make(), "set_car_price");
+        $kb = $this->paginationKb->addPaginationToKb(Keyboard::make(), "set_car_price", "back_to_settings");
         $chat->edit($lastMessId)->message($mess)->keyboard($kb)->send();
 
     }

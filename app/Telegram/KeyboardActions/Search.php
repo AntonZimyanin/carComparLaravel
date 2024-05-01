@@ -13,21 +13,41 @@ class Search
     private CarPreferenceController $carPrefController;
 
     private AvByParser $parser;
+    private AvByCarProperty $property;
+
     public function __construct(
         AvByParser $parser,
         CarPreferenceController $carPrefController,
+        AvByCarProperty $property,
+
     ) {
         $this->carPrefController = $carPrefController;
         $this->parser = $parser;
+        $this->property = $property;
     }
     /**
      * @throws StorageException
      */
-    public function search(TelegraphChat $chat, AvByCarProperty $property): void
+    public function search(TelegraphChat $chat): void
     {
+
+        $carModelId = $chat->storage()->get('car_model_id');
+        $carBrand = $chat->storage()->get('car_brand_text');
+        $carPriceLow = 0;
+        $carPriceHigh = $chat->storage()->get('car_price_high');
+
+        $this->property->set(
+            $chat->chat_id,
+            $carBrand,
+            $carModelId,
+            $carPriceLow,
+            $carPriceHigh,
+        );
+
         $lastMessId = $chat->storage()->get('message_id');
+
         $this->parser->set(
-            $property,
+            $this->property,
         );
         $chat->message("Поиск начат...")->send();
 
