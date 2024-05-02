@@ -2,6 +2,7 @@
 
 namespace App\Telegram;
 
+use App\Http\Controllers\CarPreferenceController;
 use App\Http\Controllers\UserController;
 
 use App\Telegram\Commands\StartCommand;
@@ -24,7 +25,7 @@ use Illuminate\Support\Stringable;
 class Handler extends WebhookHandler
 {
     //contoollers
-    private UserController $userController;
+    private CarPreferenceController $carPreferenceController;
 
     //commands
     private StartCommand $startCommand;
@@ -49,7 +50,9 @@ class Handler extends WebhookHandler
         ShowCars $showCars,
         Search $search,
         AvByCarProperty $property,
-        UserController $userController
+        UserController $userController,
+
+        CarPreferenceController $carPreferenceController
     ) {
         parent::__construct();
         $this->startCommand = $startCommand;
@@ -63,7 +66,7 @@ class Handler extends WebhookHandler
         $this->search = $search;
         $this->property = $property;
 
-        $this->userController = $userController;
+        $this->carPreferenceController = $carPreferenceController;
     }
 
     /**
@@ -71,18 +74,12 @@ class Handler extends WebhookHandler
      */
     public function start(): void
     {
-        
         $this->startCommand->sendCommand($this->chat);
-        $telegramId = $this->message->from()->id();
-//        $this->chat->chat_id;
+        $data = $this->carPreferenceController->index($this->chat->id);
+        Telegraph::message($data . count($data))->send();
 
-        $this->chat->storage->set('telegramId', $telegramId);
-        $this->chat->message($this->message->from()->id())->send();
-        if (
-           !($this->userController->getUserByTelegramId($telegramId))
-        ) {
-            $this->userController->create($telegramId);
-        }
+        $telegraphId = $this->chat->id;
+        $this->chat->message($telegraphId)->send();
     }
 
     /**
@@ -90,10 +87,8 @@ class Handler extends WebhookHandler
      */
     public function setting(): void
     {
-        $telegramId = $this->chat->storage->get('telegramId');
         $this->settingCommand->sendCommand(
             $this->chat,
-            $telegramId
         );
     }
 
@@ -161,11 +156,8 @@ class Handler extends WebhookHandler
      */
     public function back_to_settings(): void
     {
-        $telegramId = $this->chat->storage->get('telegramId');
-
         $this->settingCommand->backToSettings(
             $this->chat,
-            $telegramId,
         );
     }
 
@@ -174,10 +166,9 @@ class Handler extends WebhookHandler
      */
     public function search(): void
     {
-    
+
         $this->search->search(
             $this->chat,
-            $this->property,
         );
 
     }

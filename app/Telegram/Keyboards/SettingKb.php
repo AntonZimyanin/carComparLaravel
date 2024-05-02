@@ -3,6 +3,7 @@
 namespace App\Telegram\Keyboards;
 
 use App\Http\Controllers\CarPreferenceController;
+use App\Telegram\Keyboards\Pagination\PaginationKb;
 use DefStudio\Telegraph\Keyboard\Button;
 use DefStudio\Telegraph\Keyboard\Keyboard;
 
@@ -11,9 +12,10 @@ class SettingKb
     private CarPreferenceController $carPrefController;
     public function __construct(CarPreferenceController $carPrefController)
     {
+        PaginationKb::getInstance();
         $this->carPrefController = $carPrefController;
     }
-    public function getSettings(int $telegramId=null): Keyboard
+    public function getSettings(int $chatId = null): Keyboard
     {
         $kb = Keyboard::make()
             ->row([
@@ -21,17 +23,19 @@ class SettingKb
             ]);
 
 
-        for ($i = 0; $i < 1; $i++) {
-            $kb->row([
-                Button::make('⚙️')->action('setting'),
-                Button::make('©️')->action('setting'),
-                Button::make('❌')->action('setting')
-            ]);
+        $pref = $this->carPrefController->index($chatId);
+        if (!empty($pref)) {
+            foreach ($pref as $p) {
+                $kb->row([
+                    Button::make($p['car_brand'] . ' ' . $p['car_model'])->action('filter_page'),
+                ])
+                ->row([
+                    Button::make('⚙️')->action('change_filter')->param('chat_id', $p['id']),
+                    Button::make('©️')->action('copy_filter')->param('chat_id', $p['id']),
+                    Button::make('❌')->action('delete_filter')->param('chat_id', $p['id']),
+                ]);
+            }
         }
-//        if ($this->carPrefController->index($telegramId)->count() > 0) {
-//            $len = $this->carPrefController->index($telegramId)->count();
-//
-//        }
 
         return $kb;
     }

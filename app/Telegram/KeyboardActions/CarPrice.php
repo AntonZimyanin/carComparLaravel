@@ -12,30 +12,23 @@ use DefStudio\Telegraph\Models\TelegraphChat;
 use Illuminate\Support\Collection;
 
 
-//TODO : save data to DB or Redis cache
 class CarPrice
 {
-    private AvByCarProperty $property;
-    private CarPreferenceController $carPrefController;
-    private PaginationKb $paginationKb;
+//    private PaginationKb $paginationKb;
     const SETUP_COMPLETE = '*Настройка завершена!*';
     const YOUR_SETTINGS = 'Ваши настройки️:';
     const PREFERRED_CARS = 'Предпочитаемые машины:';
 
-    public function __construct(PaginationKb $paginationKb, CarPreferenceController $carPrefController, AvByCarProperty $property)
-    {
-        $this->carPrefController = $carPrefController;
-        $this->paginationKb = $paginationKb;
-        $this->property = $property;
-    }
-
-    private function appendToMess(string $key, string $label, string &$mess, TelegraphChat $chat): string|int
+   
+    /**
+     * @throws StorageException
+     */
+    private function appendToMess(string $key, string $label, string &$mess, TelegraphChat $chat): void
     {
         $value = $chat->storage()->get($key);
         if ($value !== null) {
             $mess .= "*$label*\n$value\n";
         }
-        return $value;
     }
 
     /**
@@ -43,24 +36,25 @@ class CarPrice
      */
     public function setCarPrice(TelegraphChat $chat, Collection $data): void
     {
-        $mess = self::SETUP_COMPLETE . "\n" . "\n" . self::YOUR_SETTINGS . "\n" . "\n" . self::PREFERRED_CARS . "\n" . "\n";
-        $car_price_high = 0;
+        $twinSep = "\n\n";
+        $mess = self::SETUP_COMPLETE . $twinSep . self::YOUR_SETTINGS . $twinSep . self::PREFERRED_CARS . $twinSep;
 
         $lastMessId = $chat->storage()->get('message_id');
-        $car_brand =  $this->appendToMess('car_brand_text', 'Бренд машины:', $mess, $chat);
-        $car_model_id = $this->appendToMess('car_model_id', 'Модель машины:', $mess, $chat);
+        $this->appendToMess('car_brand_text', 'Бренд машины:', $mess, $chat);
+        $this->appendToMess('car_model_id', 'Модель машины:', $mess, $chat);
 
         //change logic
-        $car_price_low = $chat->storage()->get('car_price_low') ? $chat->storage()->get('car_price_low') : 0;
+        $carPriceLow =  $chat->storage()->get('car_price_low') ?: 0;
 
         if ($data->get("car_price_high")) {
-            $car_price_high = $data->get("car_price_high");
-            $chat->storage()->set('car_price_high', $car_price_high);
-            $mess .= "*Ценовой диапозон:*\n " . $car_price_low . " - " . $car_price_high . "\n";
+            $carPriceHigh = $data->get("car_price_high");
+            $chat->storage()->set('car_price_high', $carPriceHigh);
+            $mess .= "*Ценовой диапозон:*\n " . $carPriceLow . " - " . $carPriceHigh . "\n";
         }
 
         $mess .= "Чтобы подписаться на рассылку, воспользуйтесь командой /search или кнопкой 🔍 Начать поиск";
-        $kb = $this->paginationKb->addPaginationToKb(Keyboard::make(), "set_car_price", "back_to_settings");
+        $kb = PaginationKb::addPaginationToKb(Keyboard::make(), "set_car_price", "back_to_settings");
+
         $chat->edit($lastMessId)->message($mess)->keyboard($kb)->send();
 
     }

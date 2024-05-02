@@ -43,7 +43,7 @@ class CarBrand
             $chat->edit($lastMessId)->message($mess)->keyboard($kb)->send();
 
             return;
-        }   
+        }
 
         $this->setCarModel->setCarModel($chat, $data);
     }

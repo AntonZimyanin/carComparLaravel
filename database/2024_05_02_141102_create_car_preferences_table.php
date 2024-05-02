@@ -14,9 +14,10 @@ return new class extends Migration
         Schema::create('car_preferences', function (Blueprint $table) {
             $table->id();
 
-            $table->foreignId('telegram_id')
-                ->constrained('users', 'telegram_id')
+            $table->foreignId('chat_id')
+                ->constrained('telegraph_chats')
                 ->cascadeOnDelete();
+
             $table->string('car_brand');
             $table->string('car_model');
             $table->integer('car_price_low');

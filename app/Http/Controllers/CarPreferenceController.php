@@ -11,9 +11,9 @@ class CarPreferenceController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index($telegramId)
+    public function index(int $chatId)
     {
-        return CarPreference::where('telegram_id', $telegramId)->get();
+        return CarPreference::where('chat_id', $chatId)->get();
     }
 
     /**
@@ -22,11 +22,11 @@ class CarPreferenceController extends Controller
     public function create(AvByCarProperty $property)
     {
         $preferences = CarPreference::create([
-            'telegram_id' => $property->telegramId,
-            'car_brand' => $property->car_brand,
-            'car_model' => $property->car_model_id,
-            'car_price_low' => $property->car_price_low,
-            'car_price_high' => $property->car_price_high,
+            'chat_id' => $property->chatId,
+            'car_brand' => $property->carBrand,
+            'car_model' => $property->carModelId,
+            'car_price_low' => $property->carPriceLow,
+            'car_price_high' => $property->carPriceHigh,
         ]);
 
         $preferences->save();
@@ -34,15 +34,6 @@ class CarPreferenceController extends Controller
         return $preferences;
     }
 
-    public function getUserByTelegramId(string $telegramId) : CarPreference|null
-    {
-        return CarPreference::where('telegram_id', $telegramId)->first();
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     * @param AvByCarProperty $property
-     */
     public function store()
     {
 

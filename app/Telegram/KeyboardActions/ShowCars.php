@@ -62,6 +62,7 @@ class ShowCars
         $initLetter = $data->get('letter');
 
         if (empty($initLetter)) {
+            $chat->message("i'm here")->send();
             $this->carModel->setCarModel($chat, $data);
             return;
         }
@@ -79,7 +80,7 @@ class ShowCars
         $kb = $this->kbBuilder->build();
 
         $lastMessId = $chat->storage()->get('message_id');
-        $kb = $this->paginationKb->addPaginationToKb($kb, 'show_cars', 'car_model');
+        $kb = PaginationKb::addPaginationToKb($kb, 'show_cars', 'car_model', $chat);
 
         $chat->edit($lastMessId)->message($mess)->keyboard(
             $kb

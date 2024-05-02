@@ -33,11 +33,7 @@ class CarModel
             $chat->storage()->set('car_price_state', false);
         }
 
-        if (!($car_model_id)){ 
-            $chat->action('back_to_settings');
-        }
 
-        
         $mess = "$car_model_id
 *Выбырите цену*
 

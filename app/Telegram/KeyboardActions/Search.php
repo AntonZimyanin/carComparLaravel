@@ -33,31 +33,27 @@ class Search
 
         $carModelId = $chat->storage()->get('car_model_id');
         $carBrand = $chat->storage()->get('car_brand_text');
-        $carPriceLow = 0;
-        $carPriceHigh = $chat->storage()->get('car_price_high');
+        $carPriceLow = (int)$chat->storage()->get('car_brand_text') ?? 0;
+        $carPriceHigh = (int)$chat->storage()->get('car_price_high');
 
         $this->property->set(
-            $chat->chat_id,
+            $chat->id,
             $carBrand,
             $carModelId,
             $carPriceLow,
             $carPriceHigh,
         );
 
-        $lastMessId = $chat->storage()->get('message_id');
-
         $this->parser->set(
             $this->property,
         );
+
+        $this->carPrefController->create($this->property);
         $chat->message("Поиск начат...")->send();
 
         $this->parser->parse($chat);
 
-        // $chat->deleteMessage($lastMessId)->send();
         $chat->storage()->forget('message_id');
-
-
-        // $this->carPrefController->create($property);
     }
 
 }

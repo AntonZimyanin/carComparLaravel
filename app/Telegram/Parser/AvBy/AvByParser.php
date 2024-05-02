@@ -87,19 +87,19 @@ class AvByParser
     public function set(
         AvByCarProperty $p
     ): void {
-        $brand_id = $this->findIdBySlug($p->car_brand);
+        $brand_id = $this->findIdBySlug($p->carBrand);
 
-        if ($p->car_brand) {
+        if ($p->carBrand) {
             $this->url .= "?brands[0][brand]=" . $brand_id;
         }
-        if ($p->car_model_id) {
-            $this->url .= "&brands[0][model]=" . $p->car_model_id;
+        if ($p->carModelId) {
+            $this->url .= "&brands[0][model]=" . $p->carModelId;
         }
-        if ($p->car_price_low > 0) {
-            $this->url .= "&price_usd[min]=" . $p->car_price_low;
+        if ($p->carPriceLow > 0) {
+            $this->url .= "&price_usd[min]=" . $p->carPriceLow;
         }
-        if ($p->car_price_high) {
-            $this->url .= "&price_usd[max]=" . $p->car_price_high;
+        if ($p->carPriceHigh > 0) {
+            $this->url .= "&price_usd[max]=" . $p->carPriceHigh;
         }
     }
 

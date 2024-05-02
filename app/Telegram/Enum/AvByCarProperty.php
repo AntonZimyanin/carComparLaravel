@@ -4,24 +4,25 @@ namespace App\Telegram\Enum;
 
 class AvByCarProperty
 {
-    public string $telegramId;
-    public string $car_brand;
-    public string $car_model_id;
-    public int $car_price_low;
-    public int $car_price_high;
+    public string $chatId;
+    public string $carBrand;
+    public string $carModelId;
+    public int $carPriceLow;
+    public int $carPriceHigh;
 
     public function set(
-        string $telegramId,
+        string $chatId,
         string $car_brand,
-        int $car_model_id,
-        int $car_price_low,
-        int $car_price_high,
-    ) {
-        $this->telegramId = $telegramId;
-        $this->car_brand = $car_brand;
-        $this->car_model_id = $car_model_id;
-        $this->car_price_low = $car_price_low;
-        $this->car_price_high = $car_price_high;
+        int $carModelId,
+        int $carPriceLow,
+        int $carPriceHigh,
+    ): void
+    {
+        $this->chatId = $chatId;
+        $this->carBrand = $car_brand;
+        $this->carModelId = $carModelId;
+        $this->carPriceLow = $carPriceLow;
+        $this->carPriceHigh = $carPriceHigh;
     }
 
     public function get(): AvByCarProperty

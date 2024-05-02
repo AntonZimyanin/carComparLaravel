@@ -27,9 +27,9 @@ class SettingCommand
     /**
      * @throws StorageException
      */
-    public function sendCommand($chat, int $telegramId=null): void
+    public function sendCommand($chat): void
     {
-        $kb = $this->kb->getSettings($telegramId);
+        $kb = $this->kb->getSettings($chat->id);
 
         $messId = $chat->message(self::mess)->keyboard(
             $kb
@@ -40,9 +40,9 @@ class SettingCommand
     /**
      * @throws StorageException
      */
-    public function backToSettings(TelegraphChat $chat, int $telegramId=null): void
+    public function backToSettings(TelegraphChat $chat): void
     {
-        $kb = $this->kb->getSettings($telegramId);
+        $kb = $this->kb->getSettings($chat->id);
         $lastMessId = $chat->storage()->get('message_id');
 
         $chat->edit($lastMessId)->message(self::mess)->keyboard(
