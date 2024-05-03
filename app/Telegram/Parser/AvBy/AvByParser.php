@@ -2,6 +2,7 @@
 
 namespace App\Telegram\Parser\AvBy;
 
+use App\Telegram\Api\AvBy\AvByApi;
 use App\Telegram\Enum\AvByCarProperty;
 
 use DefStudio\Telegraph\Models\TelegraphChat;
@@ -10,66 +11,26 @@ use DOMXPath;
 
 
 //TODO:
-// - add av by api fot this class and change access to av by field
+// - add av by api fot this class and change access to av by field +
 // - review the loop 114
 
 class AvByParser
 {
+    private string $xApiKey;
     private string $url;
-    private string $xApiKey = 'y5b3b55fdce273d03ec1d22';
-
-
-    private function getAllCarBrands(): mixed
+    private AvByApi $avByApi;
+    public function __construct(AvByApi $avByApi)
     {
-        $path = base_path('brand-items-id-name-slug.json');
-        $json = file_get_contents($path);
-        return json_decode($json, true);
-    }
-
-    private function findIdBySlug($slug)
-    {
-        $carData = $this->getAllCarBrands();
-
-        $left = 0;
-        $right = count($carData) - 1;
-
-        while ($left <= $right) {
-            $mid = $left + floor(($right - $left) / 2);
-            $currentSlug = $carData[$mid]['slug'];
-
-            if ($currentSlug === $slug) {
-                return $carData[$mid]['id'];
-            } elseif ($currentSlug < $slug) {
-                $left = $mid + 1;
-            } else {
-                $right = $mid - 1;
-            }
-        }
-
-        return null;
-    }
-
-    public function getModels($brandSlug)
-    {
-        $brandId = $this->findIdBySlugModel($brandSlug);
-
-        $url = "https://api.av.by/offer-types/cars/catalog/brand-items/$brandId/models";
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, [
-            'X-Api-Key: ' . $this->xApiKey
-        ]);
-        $result = curl_exec($ch);
-        curl_close($ch);
-
-        return json_decode($result, true);
+        $this->url = "https://cars.av.by/filter";
+        $this->xApiKey = 'y5b3b55fdce273d03ec1d22';
+        $this->avByApi = $avByApi;
     }
 
 
-    private function findIdBySlugModel($slug)
+
+    private function findModelIdBySlug($slug)
     {
-        $carData = $this->getModels($slug);
+        $carData = $this->avByApi->getModels($slug);
         for ($i = 0; $i < count($carData); $i++) {
             if ($carData[$i]['slug'] === $slug) {
                 return $carData[$i]['id'];
@@ -78,16 +39,12 @@ class AvByParser
         return null;
     }
 
-    public function __construct()
-    {
-        $this->url = "https://cars.av.by/filter";
-    }
     //https://cars.av.by/audi/a2
     //https://cars.av.by/filter?brands[0][brand]=1444&brands[0][model]=1451&price_usd[min]=1&price_usd[max]=111111
     public function set(
         AvByCarProperty $p
     ): void {
-        $brand_id = $this->findIdBySlug($p->carBrand);
+        $brand_id = $this->avByApi->findBrandIdBySlug($p->carBrand);
 
         if ($p->carBrand) {
             $this->url .= "?brands[0][brand]=" . $brand_id;
@@ -175,12 +132,12 @@ class AvByParser
                 "
 Продавец: {$sellerName}
 Город: {$locationName}
-Brand: {$brand}
-Model: {$model}
-Generation: {$generation}
-Year: {$year}
-Price: {$price}
-Public Url: {$publicUrl}"
+Бренд: {$brand}
+Модель: {$model}
+Поколение: {$generation}
+Год: {$year}
+Цена: {$price}$
+Ссылка: {$publicUrl} "
             )->send();
         }
     }

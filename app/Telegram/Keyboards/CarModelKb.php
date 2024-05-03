@@ -45,7 +45,9 @@ class CarModelKb extends BaseKb
         foreach ($carModels as $carModel) {
             $buttons[] = Button::make($carModel['slug'])
                 ->action('set_car_model')
-                ->param('car_model_id', $carModel['id']);
+                ->param('car_model_id', $carModel['id'])
+                ->param('car_model_name', $carModel['slug']);
+            ;
         }
         return $buttons;
     }

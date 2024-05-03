@@ -28,9 +28,12 @@ class CarModel
 
         if ($data->get("car_model_id")) {
             $car_model_id = $data->get("car_model_id");
-            $chat->storage()->set('car_model_id', $car_model_id);
+            $car_model_name = $data->get("car_model_name");
 
-            $chat->storage()->set('car_price_state', false);
+            $chat->storage()->set('car_model_id', $car_model_id);
+            $chat->storage()->set('car_model_name', $car_model_name);
+
+            $chat->storage()->set('car_price_state', true);
         }
 
 

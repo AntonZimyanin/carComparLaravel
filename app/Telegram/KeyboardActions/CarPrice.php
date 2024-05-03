@@ -2,9 +2,7 @@
 
 namespace App\Telegram\KeyboardActions;
 
-use App\Http\Controllers\CarPreferenceController;
 use App\Telegram\Keyboards\Pagination\PaginationKb;
-use App\Telegram\Enum\AvByCarProperty;
 
 use DefStudio\Telegraph\Keyboard\Keyboard;
 use DefStudio\Telegraph\Exceptions\StorageException;
@@ -14,12 +12,11 @@ use Illuminate\Support\Collection;
 
 class CarPrice
 {
-//    private PaginationKb $paginationKb;
     const SETUP_COMPLETE = '*Настройка завершена!*';
     const YOUR_SETTINGS = 'Ваши настройки️:';
     const PREFERRED_CARS = 'Предпочитаемые машины:';
 
-   
+
     /**
      * @throws StorageException
      */
@@ -41,7 +38,7 @@ class CarPrice
 
         $lastMessId = $chat->storage()->get('message_id');
         $this->appendToMess('car_brand_text', 'Бренд машины:', $mess, $chat);
-        $this->appendToMess('car_model_id', 'Модель машины:', $mess, $chat);
+        $this->appendToMess('car_model_name', 'Модель машины:', $mess, $chat);
 
         //change logic
         $carPriceLow =  $chat->storage()->get('car_price_low') ?: 0;
@@ -52,7 +49,7 @@ class CarPrice
             $mess .= "*Ценовой диапозон:*\n " . $carPriceLow . " - " . $carPriceHigh . "\n";
         }
 
-        $mess .= "Чтобы подписаться на рассылку, воспользуйтесь командой /search или кнопкой 🔍 Начать поиск";
+        $mess .= "Чтобы найти нужные вам машины, воспользуйтесь командой /search или кнопкой 🔍 Начать поиск";
         $kb = PaginationKb::addPaginationToKb(Keyboard::make(), "set_car_price", "back_to_settings");
 
         $chat->edit($lastMessId)->message($mess)->keyboard($kb)->send();

@@ -32,7 +32,6 @@ class Handler extends WebhookHandler
     private SettingCommand $settingCommand;
 
     //action
-    private AvByCarProperty $property;
     private Filter $filter;
     private CarBrand $carBrand;
     private CarModel $carModel;
@@ -49,8 +48,6 @@ class Handler extends WebhookHandler
         CarPrice $carPrice,
         ShowCars $showCars,
         Search $search,
-        AvByCarProperty $property,
-        UserController $userController,
 
         CarPreferenceController $carPreferenceController
     ) {
@@ -64,7 +61,6 @@ class Handler extends WebhookHandler
         $this->carPrice = $carPrice;
         $this->showCars = $showCars;
         $this->search = $search;
-        $this->property = $property;
 
         $this->carPreferenceController = $carPreferenceController;
     }
@@ -75,11 +71,11 @@ class Handler extends WebhookHandler
     public function start(): void
     {
         $this->startCommand->sendCommand($this->chat);
-        $data = $this->carPreferenceController->index($this->chat->id);
-        Telegraph::message($data . count($data))->send();
+        $chat_id = $this->chat->id;
 
-        $telegraphId = $this->chat->id;
-        $this->chat->message($telegraphId)->send();
+        $data = $this->carPreferenceController->index($chat_id);
+//        $this->chat->message("Hello, {$data}")->send();
+        $this->chat->storage()->set('chat_id',  $chat_id);
     }
 
     /**
@@ -195,22 +191,20 @@ class Handler extends WebhookHandler
             return;
         }
 
-        if ($this->chat->storage()->get('car_price_state') === false) {
+        if ($this->chat->storage()->get('car_price_state')) {
             $res = explode(' ', $messageText);
             if (count($res) == 2 && is_numeric($res[0]) && is_numeric($res[1])) {
-
                 $this->chat->storage()->set('car_price_low', $res[0]);
                 $this->chat->storage()->set('car_price_high', $res[1]);
-                $this->carPrice->setCarPrice($this->chat, $this->data,);
+                $this->carPrice->setCarPrice($this->chat, $this->data);
+                $this->chat->message("Цена успешно установлена: $res[0] - $res[1]")->send();
+                $this->chat->storage()->forget('car_price_state');
                 return;
             }
-            Telegraph::message("Введите ценовой диапазон в формате *от до*\nПример: 100 200")->send();
+            $this->chat->message("Введите ценовой диапазон в формате *от до*\nПример: 100 200")->send();
+            return;
         }
-
-        Telegraph::message("Такой команды нет")->send();
-
-
-
+        $this->chat->message("Такой команды нет")->send();
     }
 
 

@@ -6,14 +6,14 @@ class AvByApi
 {
     private string $xApiKey = 'y5b3b55fdce273d03ec1d22';
 
-    private function getAllCarBrands(): mixed
+    public function getAllCarBrands(): mixed
     {
         $path = base_path('brand-items-id-name-slug.json');
         $json = file_get_contents($path);
         return json_decode($json, true);
     }
 
-    private function findIdBySlug(string $slug)
+    public function findBrandIdBySlug(string $slug)
     {
         $carData = $this->getAllCarBrands();
 
@@ -39,7 +39,7 @@ class AvByApi
 
     public function getModels($brandSlug)
     {
-        $brandId = $this->findIdBySlug($brandSlug);
+        $brandId = $this->findBrandIdBySlug($brandSlug);
 
         $url = "https://api.av.by/offer-types/cars/catalog/brand-items/$brandId/models";
         $ch = curl_init();
@@ -56,7 +56,7 @@ class AvByApi
 
     public function getGenerations(string $slug, int $modelId)
     {
-        $brandId = $this->findIdBySlug($slug);
+        $brandId = $this->findBrandIdBySlug($slug);
         $url = "https://api.av.by/offer-types/cars/catalog/brand-items/{$brandId}/models/{$modelId}/generations";
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $url);
