@@ -32,6 +32,8 @@ php artisan serve --port 8080
 # TODO: 
 
         //TODO: create logic for back to previous page : create new func or change logic for current func
+        - create sort by price or other property -
+        - fix search (bmw) - 
 
         - change price buidl filter +
         - change forget message id logic +

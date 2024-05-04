@@ -114,7 +114,13 @@ class AvByParser
                     $brand = $val[0]['value'];
                     $model = $val[1]['value'];
                     $generation = $val[2]['value'];
-                    $year = $val[3]['value'];
+
+                    foreach ($val as $item) {
+//                        && (str_contains('String', 'Substring')
+                        if ( $item['name'] == "year") {
+                            $year = $item['value'];
+                        }
+                    }
                 }
                 if ($key == 'publicUrl') {
                     $publicUrl = $val;

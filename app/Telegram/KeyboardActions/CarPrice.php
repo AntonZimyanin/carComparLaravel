@@ -12,6 +12,11 @@ use Illuminate\Support\Collection;
 
 class CarPrice
 {
+    private PaginationKb $pagination;
+
+    public function __construct(PaginationKb $paginationKb){ 
+        $this->pagination = $paginationKb;
+    }
     const SETUP_COMPLETE = '*Настройка завершена!*';
     const YOUR_SETTINGS = 'Ваши настройки️:';
     const PREFERRED_CARS = 'Предпочитаемые машины:';
@@ -50,7 +55,7 @@ class CarPrice
         }
 
         $mess .= "Чтобы найти нужные вам машины, воспользуйтесь командой /search или кнопкой 🔍 Начать поиск";
-        $kb = PaginationKb::addPaginationToKb(Keyboard::make(), "set_car_price", "back_to_settings");
+        $kb = $this->pagination->addPaginationToKb(Keyboard::make(), "set_car_price", "back_to_settings");
 
         $chat->edit($lastMessId)->message($mess)->keyboard($kb)->send();
 

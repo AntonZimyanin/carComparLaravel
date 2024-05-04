@@ -80,7 +80,7 @@ class ShowCars
         $kb = $this->kbBuilder->build();
 
         $lastMessId = $chat->storage()->get('message_id');
-        $kb = PaginationKb::addPaginationToKb($kb, 'show_cars', 'car_model', $chat);
+        $kb = $this->paginationKb->addPaginationToKb($kb, 'show_cars', 'car_model');
 
         $chat->edit($lastMessId)->message($mess)->keyboard(
             $kb

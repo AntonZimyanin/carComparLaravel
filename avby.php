@@ -109,7 +109,7 @@ class AvByParser
 
     public function __construct()
     {
-        $this->url = "https://cars.av.by/filter";
+        $this->url = "https://cars.av.by/filter/";
     }
     //https://cars.av.by/filter?brands[0][brand]=1444&brands[0][model]=1451&price_usd[max]=111111
     //https://cars.av.by/filter?brands[0][brand]=1444&brands[0][model]=1451&price_usd[min]=1&price_usd[max]=111111

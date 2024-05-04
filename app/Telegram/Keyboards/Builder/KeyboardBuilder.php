@@ -8,11 +8,13 @@ use DefStudio\Telegraph\Keyboard\Keyboard;
 
 class KeyboardBuilder
 {
+    private PaginationKb $paginationKb;
     private array $buttons;
     private int $buttonsPerRow;
 
     public function __construct(PaginationKb $paginationKb)
     {
+        $this->paginationKb = $paginationKb;
     }
 
     public function set(array $buttons, int $buttonsPerRow = 2): void
@@ -41,6 +43,6 @@ class KeyboardBuilder
             $step = min($this->buttonsPerRow, $len - $i);
             $kb->row(array_slice($this->buttons, $i, $step));
         }
-        return PaginationKb::addPaginationToKb($kb, $currPage, $nextPage);
+        return $this->paginationKb->addPaginationToKb($kb, $currPage, $nextPage);
     }
 }

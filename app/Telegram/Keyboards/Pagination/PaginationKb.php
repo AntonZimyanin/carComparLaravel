@@ -48,7 +48,7 @@ class PaginationKb
 
 
     //TODO: correct logic
-    static function addPaginationToKb(Keyboard $kb, string $currPage, string $nextPage): Keyboard
+    public function addPaginationToKb(Keyboard $kb, string $currPage, string $nextPage): Keyboard
     {
         $prevPage = end(self::$path);
         $prevAction = count(self::$path) == 0 ? 'back_to_settings' : end(self::$path);
