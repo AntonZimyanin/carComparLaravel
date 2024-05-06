@@ -24,20 +24,13 @@ class CarModel
     public function setCarModel(TelegraphChat $chat, Collection|null $data): void
     {
         $lastMessId = $chat->storage()->get('message_id');
+        
+        if ($data->get("car_model_id")) {
+            $carModelId = $data->get("car_model_id");
+            $carModelName = $data->get("car_model_name");
 
-        if ($data->get("car_model__id__name")) {
-            $carModel = $chat->storage()->get('car_model__id__name');
-            $carModelId = (int)explode(
-                '&', $carModel
-            )[0];
-            $carModelName = explode(
-                '&', $carModel
-            )[1];
-
-
-            $car_model_name = $data->get("car_model_name");
-
-            $chat->storage()->set('car_model__id__name', $carModelId);
+            $chat->storage()->set('car_model_id', $carModelId);
+            $chat->storage()->set('car_model_name', $carModelName);
 
             $chat->storage()->set('car_price_state', true);
         }

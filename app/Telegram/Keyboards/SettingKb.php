@@ -3,7 +3,6 @@
 namespace App\Telegram\Keyboards;
 
 use App\Http\Controllers\CarPreferenceController;
-use App\Telegram\Keyboards\Pagination\PaginationKb;
 use DefStudio\Telegraph\Keyboard\Button;
 use DefStudio\Telegraph\Keyboard\Keyboard;
 
@@ -12,7 +11,6 @@ class SettingKb
     private CarPreferenceController $carPrefController;
     public function __construct(CarPreferenceController $carPrefController)
     {
-        PaginationKb::getInstance();
         $this->carPrefController = $carPrefController;
     }
     public function getSettings(int $chatId = null): Keyboard

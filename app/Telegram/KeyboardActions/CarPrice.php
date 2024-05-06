@@ -46,11 +46,6 @@ class CarPrice
         $this->appendToMess('car_model_name', 'Модель машины:', $mess, $chat);
 
 
-        $value = $chat->storage()->get('car_model__id__name');
-        if ($value !== null) {
-            $car_model_name = explode('&', $value)[1];
-            $mess .= "*'Модель машины:'*\n$car_model_name\n";
-        }
 
         //change logic
         $carPriceLow =  $chat->storage()->get('car_price_low') ?: 0;

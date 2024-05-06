@@ -4,19 +4,16 @@ namespace App\Telegram\KeyboardActions;
 
 use App\Telegram\Keyboards\AlphabetKb;
 
-use App\Telegram\Keyboards\Builder\KeyboardBuilder;
 use DefStudio\Telegraph\Exceptions\StorageException;
 use DefStudio\Telegraph\Models\TelegraphChat;
 
 class Filter
 {
     private AlphabetKb $alphabetKb;
-    private KeyboardBuilder $kbBuilder;
 
-    public function __construct(AlphabetKb $alphabetKb, KeyboardBuilder $kbBuilder)
+    public function __construct(AlphabetKb $alphabetKb)
     {
         $this->alphabetKb = $alphabetKb;
-        $this->kbBuilder = $kbBuilder;
     }
 
     /**

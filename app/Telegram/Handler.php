@@ -2,13 +2,9 @@
 
 namespace App\Telegram;
 
-use App\Http\Controllers\CarPreferenceController;
-use App\Http\Controllers\UserController;
-
 use App\Telegram\Commands\StartCommand;
 use App\Telegram\Commands\SettingCommand;
 
-use App\Telegram\Enum\AvByCarProperty;
 use App\Telegram\KeyboardActions\Search;
 
 use App\Telegram\KeyboardActions\Filter;
@@ -17,17 +13,16 @@ use App\Telegram\KeyboardActions\CarModel;
 use App\Telegram\KeyboardActions\CarPrice;
 use App\Telegram\KeyboardActions\ShowCars;
 
-use Illuminate\Support\Facades\Redis;
 use DefStudio\Telegraph\Exceptions\StorageException;
 use DefStudio\Telegraph\Facades\Telegraph;
 use DefStudio\Telegraph\Handlers\WebhookHandler;
+use DefStudio\Telegraph\Keyboard\Button;
+use DefStudio\Telegraph\Keyboard\Keyboard;
+use Illuminate\Support\Facades\Redis;
 use Illuminate\Support\Stringable;
 
 class Handler extends WebhookHandler
 {
-    //contoollers
-    private CarPreferenceController $carPreferenceController;
-
     //commands
     private StartCommand $startCommand;
     private SettingCommand $settingCommand;
@@ -50,7 +45,6 @@ class Handler extends WebhookHandler
         ShowCars $showCars,
         Search $search,
 
-        CarPreferenceController $carPreferenceController
     ) {
         parent::__construct();
         $this->startCommand = $startCommand;
@@ -63,7 +57,6 @@ class Handler extends WebhookHandler
         $this->showCars = $showCars;
         $this->search = $search;
 
-        $this->carPreferenceController = $carPreferenceController;
     }
 
     /**
@@ -71,30 +64,7 @@ class Handler extends WebhookHandler
      */
     public function start(): void
     {
-//        Redis::rpush('name', 'Taylor');
-        Redis::set('carcompar:1:name', '[1, 2, 4, 3]');
-//        Redis::set('carcompar:2:name', 'Taylor');
-//        Redis::set('carcompar:3:name', 'Taylor');
-
-//        Redis::lpush('list', 2, 3, 5);
-//        Redis::lpush('list', 1, 3, 5);
-
-
-        for ($i = 1; $i <= 3; $i++) {
-            $v = (array)Redis::get("carcompar:$i:name");
-            $this->chat->message("Hello, {$v[0]}")->send();
-        }
-
-
-//        $v = Redis::lrange('name', 0, 1);
-//        $redis->client()->set('name', 'Taylor');
-//        Redis::set('name', 'Taylor');
-        $this->startCommand->sendCommand($this->chat);
-        $chat_id = $this->chat->id;
-
-        $data = $this->carPreferenceController->index($chat_id);
-//        $this->chat->message("Hello, { $v }")->send();
-        $this->chat->storage()->set('chat_id',  $chat_id);
+       $this->startCommand->sendCommand($this->chat);
     }
 
     /**
@@ -181,12 +151,39 @@ class Handler extends WebhookHandler
      */
     public function search(): void
     {
-
         $this->search->search(
             $this->chat,
         );
 
     }
+
+    public function show_parse_cars() : void {
+        $lastMessId = $this->chat->storage()->get('message_id');
+        $carId = $this->data->get('id');
+
+        $car = Redis::hGetAll("car:$carId");
+
+
+        $kb = Keyboard::make()
+            ->row([
+                Button::make('Назад')->action('show_parse_cars')->param('id', 0),
+                Button::make('Впред')->action('show_parse_cars')->param('id', 1),
+            ]);
+        $this->chat->edit($lastMessId)->photo($car['photourl'])->message(
+            "
+Продавец: {$car['sellername']}
+Город: {$car['locationname']}
+Бренд: {$car['brand']}
+Модель: {$car['model']}
+Поколение: {$car['generation']}
+Год: {$car['year']}
+Цена: {$car['price']}$
+Ссылка: {$car['publicurl']} "
+        )->keyboard($kb)->send();
+
+
+    }
+
 
     protected function handleUnknownCommand(Stringable $text): void
     {

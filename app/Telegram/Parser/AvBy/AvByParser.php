@@ -5,9 +5,11 @@ namespace App\Telegram\Parser\AvBy;
 use App\Telegram\Api\AvBy\AvByApi;
 use App\Telegram\Enum\AvByCarProperty;
 
+use DefStudio\Telegraph\Keyboard\Keyboard;
 use DefStudio\Telegraph\Models\TelegraphChat;
 use DOMDocument;
 use DOMXPath;
+use Illuminate\Support\Facades\Redis;
 
 
 //TODO:
@@ -26,28 +28,15 @@ class AvByParser
         $this->avByApi = $avByApi;
     }
 
-
-
-    private function findModelIdBySlug($slug)
-    {
-        $carData = $this->avByApi->getModels($slug);
-        for ($i = 0; $i < count($carData); $i++) {
-            if ($carData[$i]['slug'] === $slug) {
-                return $carData[$i]['id'];
-            }
-        }
-        return null;
-    }
-
     //https://cars.av.by/audi/a2
     //https://cars.av.by/filter?brands[0][brand]=1444&brands[0][model]=1451&price_usd[min]=1&price_usd[max]=111111
     public function set(
         AvByCarProperty $p
     ): void {
-        $brand_id = $this->avByApi->findBrandIdBySlug($p->carBrand);
+        $brandId = $this->avByApi->findBrandIdBySlug($p->carBrand);
 
         if ($p->carBrand) {
-            $this->url .= "?brands[0][brand]=" . $brand_id;
+            $this->url .= "?brands[0][brand]=" . $brandId;
         }
         if ($p->carModelId) {
             $this->url .= "&brands[0][model]=" . $p->carModelId;
@@ -84,7 +73,6 @@ class AvByParser
                 $extractedData[] = $jsonData;
             }
         }
-        $i = 1;
         if (empty($extractedData)) {
             $chat->message("Ничего не найдено2")->send();
             return;
@@ -102,7 +90,9 @@ class AvByParser
         $publicUrl = '';
         $price = '';
         $photoUrl = '';
+        $i = 0;
         foreach ($extractedData[0]['props']['initialState']['filter']['main']['adverts'] as $fields) {
+
             foreach ($fields as $key => $val) {
                 if ($key == 'sellerName') {
                     $sellerName = $val;
@@ -116,7 +106,6 @@ class AvByParser
                     $generation = $val[2]['value'];
 
                     foreach ($val as $item) {
-//                        && (str_contains('String', 'Substring')
                         if ( $item['name'] == "year") {
                             $year = $item['value'];
                         }
@@ -133,18 +122,19 @@ class AvByParser
                     $photoUrl = $val[0]['medium']['url'];
                 }
             }
-
-            $chat->photo($photoUrl)->message(
-                "
-Продавец: {$sellerName}
-Город: {$locationName}
-Бренд: {$brand}
-Модель: {$model}
-Поколение: {$generation}
-Год: {$year}
-Цена: {$price}$
-Ссылка: {$publicUrl} "
-            )->send();
+            Redis::hSet("car:$i",
+                "sellername", $sellerName,
+                "locationname", $locationName,
+                "brand", $brand,
+                "model", $model,
+                "generation", $generation,
+                "year", $year,
+                "publicurl", $publicUrl,
+                "price", $price,
+                "photourl", $photoUrl
+            );
+            $i++;
         }
+        $chat->message("Поиск завершен")->send();
     }
 }

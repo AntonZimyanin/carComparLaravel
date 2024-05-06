@@ -15,35 +15,19 @@ class PaginationKb
 {
     const BACK_TO_SETTINGS = 'Вернуться к настройкам';
     const ADD_FILTER = 'Добавить фильтр';
-
-    private static ?PaginationKb $instance = null;
-
     private static array $fullPath = [
-'add_filter',
-'show_cars',
-'set_car_brand',
-'set_car_model',
-'set_car_price',
-];
-    public static ?array $path = [];
-
-    public string $state = '';
-
+            'add_filter',
+            'show_cars',
+            'set_car_brand',
+            'set_car_model',
+            'set_car_price',
+    ];
+    public static array $path;
 
     public function __construct()
     {
+        self::$path = [];
     }
-
-    public static function getInstance(): PaginationKb
-    {
-        if ( is_null( self::$instance ) )
-        {
-            self::$instance = new self();
-        }
-        return self::$instance;
-    }
-
-
     private function addButtonRow(Keyboard $kb, string $prevAction, string $nextAction): void
     {
         $kb->row([
@@ -57,18 +41,15 @@ class PaginationKb
      * @throws NotFoundExceptionInterface
      */
     public function getPath() : array {
-        if (session()->has('path')) {
-            self::$path = session()->get('path');
-        }
-        else {
-            self::$path = [];
+        for ($i = 0; $i < count(self::$fullPath); $i++) {
+            if (Redis::get("path:$i") !== null) {
+                self::$path[] = Redis::get("path:$i");
+            }
         }
 
         return self::$path;
     }
 
-
-    //TODO: correct logic
 
     /**
      * @throws ContainerExceptionInterface
@@ -76,47 +57,36 @@ class PaginationKb
      */
     public function addPaginationToKb(Keyboard $kb, string $currPage, string $nextPage): Keyboard
     {
-
-        for ($i = 0; $i < count(self::$fullPath); $i++) {
-            if (Redis::get("path:$i") !== null) {
-                self::$path[] = Redis::get("path:$i");
-            }
-        }
-
-
-        $prevPage = end(self::$path);
-        $prevAction = count(self::$path) == 0 ? 'back_to_settings' : end(self::$path);
-
-
-        if ($prevPage === $currPage) {
-            return $kb->row([
-                Button::make('Назад')->action($prevAction),
-                Button::make('Вперед')->action($nextPage),
-            ]);
-        }
-
-        if (count(self::$path) < count(self::$fullPath) - 2) {
-            $kb->row([
-                Button::make('Назад')->action($prevAction),
-                Button::make('Вперед')->action($nextPage),
-            ]);
-
-        }
+        $arr = [];
         if ($currPage === 'set_car_price') {
-            $kb->row([
+            self::$path = [];
+            return $kb->row([
                 Button::make(self::ADD_FILTER)->action('add_filter'),
                 Button::make(self::BACK_TO_SETTINGS)->action('back_to_settings'),
             ]);
-            self::$path = [];
         }
 
+        self::$path = (array)Redis::hGetAll('path');
+        if (self::$path[0] !== '') {
+           // 
+        }
+        else {
+            self::$path = [];
+        }
+        $prevPage = end($arr);
+        $prevAction = count($arr) == 0 ? 'back_to_settings' : $prevPage;
 
-        Redis::set('prev', $currPage);
+        if ($prevPage === $currPage) {
+            array_pop($arr);
+        }
+        $kb->row([
+            Button::make('Назад')->action($prevAction),
+            Button::make('Вперед')->action($nextPage),
+        ]);
+        $arr[] = $currPage;
 
-//        self::$path[] = $currPage;
         $inx = array_search($currPage, self::$fullPath);
-        Redis::set("path:$inx", $currPage);
-//        session()->put(f, self::$path);
+        Redis::hSet('path', $inx, end($arr));
 
         return $kb;
     }
