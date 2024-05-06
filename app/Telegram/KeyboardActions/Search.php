@@ -31,7 +31,9 @@ class Search
     public function search(TelegraphChat $chat): void
     {
 
-        $carModelId = $chat->storage()->get('car_model_id');
+        $carModel = $chat->storage()->get('car_model__id__name');
+        $carModelId = (int)explode('&', $carModel)[0];
+
         $carBrand = $chat->storage()->get('car_brand_text');
         $carPriceLow = (int)$chat->storage()->get('car_brand_text') ?? 0;
         $carPriceHigh = (int)$chat->storage()->get('car_price_high');

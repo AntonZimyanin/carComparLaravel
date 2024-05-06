@@ -4,7 +4,7 @@ namespace App\Telegram\Api\AvBy;
 
 class AvByApi
 {
-    private string $xApiKey = 'y5b3b55fdce273d03ec1d22';
+    private string $xApiKey = 'eec1bf3e24da7039e1ab116';
 
     public function getAllCarBrands(): mixed
     {

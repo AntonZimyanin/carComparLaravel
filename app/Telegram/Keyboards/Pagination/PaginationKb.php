@@ -2,8 +2,14 @@
 
 namespace App\Telegram\Keyboards\Pagination;
 
+
+use Illuminate\Support\Facades\Redis;
+
 use DefStudio\Telegraph\Keyboard\Button;
 use DefStudio\Telegraph\Keyboard\Keyboard;
+use Psr\Container\ContainerExceptionInterface;
+use Psr\Container\NotFoundExceptionInterface;
+
 
 class PaginationKb
 {
@@ -46,10 +52,38 @@ class PaginationKb
         ]);
     }
 
+    /**
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
+     */
+    public function getPath() : array {
+        if (session()->has('path')) {
+            self::$path = session()->get('path');
+        }
+        else {
+            self::$path = [];
+        }
+
+        return self::$path;
+    }
+
 
     //TODO: correct logic
+
+    /**
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
+     */
     public function addPaginationToKb(Keyboard $kb, string $currPage, string $nextPage): Keyboard
     {
+
+        for ($i = 0; $i < count(self::$fullPath); $i++) {
+            if (Redis::get("path:$i") !== null) {
+                self::$path[] = Redis::get("path:$i");
+            }
+        }
+
+
         $prevPage = end(self::$path);
         $prevAction = count(self::$path) == 0 ? 'back_to_settings' : end(self::$path);
 
@@ -61,9 +95,7 @@ class PaginationKb
             ]);
         }
 
-
-
-        if (count(self::$path) < count(self::$fullPath) - 3) {
+        if (count(self::$path) < count(self::$fullPath) - 2) {
             $kb->row([
                 Button::make('Назад')->action($prevAction),
                 Button::make('Вперед')->action($nextPage),
@@ -75,11 +107,16 @@ class PaginationKb
                 Button::make(self::ADD_FILTER)->action('add_filter'),
                 Button::make(self::BACK_TO_SETTINGS)->action('back_to_settings'),
             ]);
-//            self::$path = [];
+            self::$path = [];
         }
 
-        self::$path[] = $currPage;
 
+        Redis::set('prev', $currPage);
+
+//        self::$path[] = $currPage;
+        $inx = array_search($currPage, self::$fullPath);
+        Redis::set("path:$inx", $currPage);
+//        session()->put(f, self::$path);
 
         return $kb;
     }

@@ -14,7 +14,7 @@ class CarPrice
 {
     private PaginationKb $pagination;
 
-    public function __construct(PaginationKb $paginationKb){ 
+    public function __construct(PaginationKb $paginationKb){
         $this->pagination = $paginationKb;
     }
     const SETUP_COMPLETE = '*Настройка завершена!*';
@@ -44,6 +44,13 @@ class CarPrice
         $lastMessId = $chat->storage()->get('message_id');
         $this->appendToMess('car_brand_text', 'Бренд машины:', $mess, $chat);
         $this->appendToMess('car_model_name', 'Модель машины:', $mess, $chat);
+
+
+        $value = $chat->storage()->get('car_model__id__name');
+        if ($value !== null) {
+            $car_model_name = explode('&', $value)[1];
+            $mess .= "*'Модель машины:'*\n$car_model_name\n";
+        }
 
         //change logic
         $carPriceLow =  $chat->storage()->get('car_price_low') ?: 0;

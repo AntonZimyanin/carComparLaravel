@@ -23,21 +23,27 @@ class CarModel
      */
     public function setCarModel(TelegraphChat $chat, Collection|null $data): void
     {
-        $car_model_id = '';
         $lastMessId = $chat->storage()->get('message_id');
 
-        if ($data->get("car_model_id")) {
-            $car_model_id = $data->get("car_model_id");
+        if ($data->get("car_model__id__name")) {
+            $carModel = $chat->storage()->get('car_model__id__name');
+            $carModelId = (int)explode(
+                '&', $carModel
+            )[0];
+            $carModelName = explode(
+                '&', $carModel
+            )[1];
+
+
             $car_model_name = $data->get("car_model_name");
 
-            $chat->storage()->set('car_model_id', $car_model_id);
-            $chat->storage()->set('car_model_name', $car_model_name);
+            $chat->storage()->set('car_model__id__name', $carModelId);
 
             $chat->storage()->set('car_price_state', true);
         }
 
 
-        $mess = "$car_model_id
+        $mess = "$carModelId
 *Выбырите цену*
 
 Если Вы хотите ввести свое значение, введите минимальную и максимальную цену в $.

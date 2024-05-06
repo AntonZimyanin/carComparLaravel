@@ -17,6 +17,7 @@ use App\Telegram\KeyboardActions\CarModel;
 use App\Telegram\KeyboardActions\CarPrice;
 use App\Telegram\KeyboardActions\ShowCars;
 
+use Illuminate\Support\Facades\Redis;
 use DefStudio\Telegraph\Exceptions\StorageException;
 use DefStudio\Telegraph\Facades\Telegraph;
 use DefStudio\Telegraph\Handlers\WebhookHandler;
@@ -70,11 +71,29 @@ class Handler extends WebhookHandler
      */
     public function start(): void
     {
+//        Redis::rpush('name', 'Taylor');
+        Redis::set('carcompar:1:name', '[1, 2, 4, 3]');
+//        Redis::set('carcompar:2:name', 'Taylor');
+//        Redis::set('carcompar:3:name', 'Taylor');
+
+//        Redis::lpush('list', 2, 3, 5);
+//        Redis::lpush('list', 1, 3, 5);
+
+
+        for ($i = 1; $i <= 3; $i++) {
+            $v = (array)Redis::get("carcompar:$i:name");
+            $this->chat->message("Hello, {$v[0]}")->send();
+        }
+
+
+//        $v = Redis::lrange('name', 0, 1);
+//        $redis->client()->set('name', 'Taylor');
+//        Redis::set('name', 'Taylor');
         $this->startCommand->sendCommand($this->chat);
         $chat_id = $this->chat->id;
 
         $data = $this->carPreferenceController->index($chat_id);
-//        $this->chat->message("Hello, {$data}")->send();
+//        $this->chat->message("Hello, { $v }")->send();
         $this->chat->storage()->set('chat_id',  $chat_id);
     }
 
