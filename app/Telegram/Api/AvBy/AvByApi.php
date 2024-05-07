@@ -35,11 +35,11 @@ class AvByApi
 
         return null;
     }
-
-
-    public function getModels($brandSlug)
+    public function getModels($brandSlug, $brandId=null)
     {
-        $brandId = $this->findBrandIdBySlug($brandSlug);
+        if ($brandId === null) {
+            $brandId = $this->findBrandIdBySlug($brandSlug);
+        }
 
         $url = "https://api.av.by/offer-types/cars/catalog/brand-items/$brandId/models";
         $ch = curl_init();
@@ -53,6 +53,21 @@ class AvByApi
 
         return json_decode($result, true);
     }
+
+
+    public function findModelIdBySlug($slug, $brandId)
+    {
+        $carData = $this->getModels($slug, $brandId);
+        $len = count($carData);
+        for ($i = 0; $i < $len; $i++) {
+            if ($carData[$i]['slug'] === $slug) {
+                return $carData[$i]['id'];
+            }
+        }
+        return null;
+    }
+
+
 
     public function getGenerations(string $slug, int $modelId)
     {

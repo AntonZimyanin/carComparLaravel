@@ -22,6 +22,7 @@ Artisan::command('setup', function () {
         '/setting' => '/start',
         '/help' =>'/start',
         '/search' =>'/search',
+        '/set_sort' =>'/set_sort',
     ])->send());
 });
 

@@ -6,6 +6,7 @@ use App\Telegram\Keyboards\SettingKb;
 
 use DefStudio\Telegraph\Exceptions\StorageException;
 use DefStudio\Telegraph\Models\TelegraphChat;
+use Illuminate\Support\Facades\Redis;
 
 class SettingCommand
 {
@@ -45,8 +46,19 @@ class SettingCommand
         $kb = $this->kb->getSettings($chat->id);
         $lastMessId = $chat->storage()->get('message_id');
 
+        Redis::del("path");
+
+
         $chat->edit($lastMessId)->message(self::mess)->keyboard(
             $kb
         )->send();
+    }
+
+    public function editKb(TelegraphChat $chat): void
+    {
+        $kb = $this->kb->getSettings($chat->id);
+        $lastMessId = $chat->storage()->get('message_id');
+
+        $chat->replaceKeyboard($lastMessId, $kb)->send();
     }
 }

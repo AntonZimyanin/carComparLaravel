@@ -2,17 +2,17 @@
 
 namespace App\Telegram;
 
-use App\Telegram\Commands\StartCommand;
+use App\Telegram\Commands\HelpCommand;
+use App\Telegram\Commands\Search;
 use App\Telegram\Commands\SettingCommand;
-
-use App\Telegram\KeyboardActions\Search;
-
-use App\Telegram\KeyboardActions\Filter;
+use App\Telegram\Commands\StartCommand;
+use App\Telegram\Commands\StoreCommand;
 use App\Telegram\KeyboardActions\CarBrand;
 use App\Telegram\KeyboardActions\CarModel;
 use App\Telegram\KeyboardActions\CarPrice;
+use App\Telegram\KeyboardActions\Filter;
+use App\Telegram\KeyboardActions\FilterAction\FilterAction;
 use App\Telegram\KeyboardActions\ShowCars;
-
 use DefStudio\Telegraph\Exceptions\StorageException;
 use DefStudio\Telegraph\Facades\Telegraph;
 use DefStudio\Telegraph\Handlers\WebhookHandler;
@@ -25,7 +25,10 @@ class Handler extends WebhookHandler
 {
     //commands
     private StartCommand $startCommand;
+    private HelpCommand $helpCommand;
     private SettingCommand $settingCommand;
+    private Search $search;
+    private StoreCommand $storeCommand;
 
     //action
     private Filter $filter;
@@ -33,7 +36,7 @@ class Handler extends WebhookHandler
     private CarModel $carModel;
     private CarPrice $carPrice;
     private ShowCars $showCars;
-    private Search $search;
+    private FilterAction $filterAction;
 
     public function __construct(
         StartCommand $startCommand,
@@ -44,7 +47,9 @@ class Handler extends WebhookHandler
         CarPrice $carPrice,
         ShowCars $showCars,
         Search $search,
-
+        FilterAction $filterAction,
+        HelpCommand $helpCommand,
+        StoreCommand $storeCommand,
     ) {
         parent::__construct();
         $this->startCommand = $startCommand;
@@ -56,7 +61,9 @@ class Handler extends WebhookHandler
         $this->carPrice = $carPrice;
         $this->showCars = $showCars;
         $this->search = $search;
-
+        $this->filterAction = $filterAction;
+        $this->helpCommand = $helpCommand;
+        $this->storeCommand = $storeCommand;
     }
 
     /**
@@ -67,6 +74,11 @@ class Handler extends WebhookHandler
        $this->startCommand->sendCommand($this->chat);
     }
 
+    public function help(): void
+    {
+        $this->helpCommand->sendCommand($this->chat);
+    }
+
     /**
      * @throws StorageException
      */
@@ -75,6 +87,39 @@ class Handler extends WebhookHandler
         $this->settingCommand->sendCommand(
             $this->chat,
         );
+    }
+
+    public function set_sort(): void{
+        $kb = Keyboard::make()->row([
+            Button::make('Актуальные')->action('set_sort_action')->param('sort', 1),
+        ])->row([
+            Button::make('Дешёвые')->action('set_sort_action')->param('sort', 2)
+        ])->row([
+            Button::make('Дорогие')->action('set_sort_action')->param('sort', 3),
+        ])->row([
+            Button::make('Новые объявления')->action('set_sort_action')->param('sort', 4),
+        ])->row([
+            Button::make('Старые объявления')->action('set_sort_action')->param('sort', 5),
+        ])->row([
+            Button::make('С наименьшим пробегом')->action('set_sort_action')->param('sort', 8),
+        ])->row([
+            Button::make('Новые по году')->action('set_sort_action')->param('sort', 6),
+        ])->row([
+            Button::make('Старые по году')->action('set_sort_action')->param('sort', 7),
+        ]);
+
+        $messSortId = $this->chat->message("Выбери способ сортировки машин")
+            ->keyboard($kb)->send()->telegraphMessageId();
+        $this->chat->storage()->set('sort_message_id', $messSortId);
+    }
+
+    public function set_sort_action()
+    {
+        //set sort
+        $sort = $this->data->get('sort');
+        $messSortId = $this->chat->storage()->get('sort_message_id');
+        $this->chat->message( $sort)->send();
+//        $this->chat->edit($messSortId)->message("Сортировка успешно установлена")->send();
     }
 
     /**
@@ -130,11 +175,6 @@ class Handler extends WebhookHandler
         );
     }
 
-    public function help(): void
-    {
-        $this->reply("I will help you");
-    }
-
 
     /**
      * @throws StorageException
@@ -142,6 +182,13 @@ class Handler extends WebhookHandler
     public function back_to_settings(): void
     {
         $this->settingCommand->backToSettings(
+            $this->chat,
+        );
+    }
+
+    public function edit_setting_kb(): void
+    {
+        $this->settingCommand->editKb(
             $this->chat,
         );
     }
@@ -158,18 +205,22 @@ class Handler extends WebhookHandler
     }
 
     public function show_parse_cars() : void {
-        $lastMessId = $this->chat->storage()->get('message_id');
+        $lastMessId = $this->chat->storage()->get('car_list_message_id');
         $carId = $this->data->get('id');
 
         $car = Redis::hGetAll("car:$carId");
+        $carCount = Redis::get('car_count');
 
-
-        $kb = Keyboard::make()
+        $pageNumber = $carId + 1;
+        $kb = Keyboard::make()->row([
+            Button::make("{$pageNumber}/$carCount")->action('page_number')->param('id', 0),
+        ])
             ->row([
-                Button::make('Назад')->action('show_parse_cars')->param('id', 0),
-                Button::make('Впред')->action('show_parse_cars')->param('id', 1),
+                Button::make('Назад')->action('show_parse_cars')->param('id', $carId - 1),
+                Button::make('Вперед')->action('show_parse_cars')->param('id', $carId + 1),
             ]);
-        $this->chat->edit($lastMessId)->photo($car['photourl'])->message(
+
+        $this->chat->edit($lastMessId)->message(
             "
 Продавец: {$car['sellername']}
 Город: {$car['locationname']}
@@ -178,10 +229,38 @@ class Handler extends WebhookHandler
 Поколение: {$car['generation']}
 Год: {$car['year']}
 Цена: {$car['price']}$
-Ссылка: {$car['publicurl']} "
+Ссылка: {$car['publicurl']}"
         )->keyboard($kb)->send();
+    }
 
+    /**
+     * @throws StorageException
+     */
+    public function delete_filter(): void
+    {
+        $this->filterAction->del(
+            $this->chat->id,
+            $this->data
+        );
+        $this->edit_setting_kb();
+    }
 
+    public function copy_filter()
+    {
+        $this->chat->message("copy_")->send();
+//        $this->filterAction->copy(
+//            $this->chat,
+//            $this->data
+//        );
+    }
+
+    public function edit_filter()
+    {
+        $this->chat->message("edit")->send();
+//        $this->filterAction->edit(
+//            $this->chat,
+//            $this->data
+//        );
     }
 
 
@@ -193,6 +272,13 @@ class Handler extends WebhookHandler
     /**
      * @throws StorageException
      */
+    public function store(): void
+    {
+        $this->storeCommand->store(
+            $this->chat
+        );
+
+    }
     protected function handleChatMessage(Stringable $text): void
     {
         $messageText = $text->value();
@@ -222,6 +308,4 @@ class Handler extends WebhookHandler
         }
         $this->chat->message("Такой команды нет")->send();
     }
-
-
 }

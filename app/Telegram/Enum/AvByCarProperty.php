@@ -4,23 +4,23 @@ namespace App\Telegram\Enum;
 
 class AvByCarProperty
 {
-    public string $chatId;
+    public int $chatId;
     public string $carBrand;
-    public string $carModelId;
+    public string $carModelName;
     public int $carPriceLow;
     public int $carPriceHigh;
 
     public function set(
-        string $chatId,
-        string $car_brand,
-        int $carModelId,
-        int $carPriceLow,
-        int $carPriceHigh,
+        int $chatId,
+        string $carBrand = '',
+        string $carModelName = '',
+        int $carPriceLow = 0,
+        int $carPriceHigh = 0,
     ): void
     {
         $this->chatId = $chatId;
-        $this->carBrand = $car_brand;
-        $this->carModelId = $carModelId;
+        $this->carBrand = $carBrand;
+        $this->carModelName = $carModelName;
         $this->carPriceLow = $carPriceLow;
         $this->carPriceHigh = $carPriceHigh;
     }

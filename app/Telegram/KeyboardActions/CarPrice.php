@@ -42,13 +42,15 @@ class CarPrice
         $mess = self::SETUP_COMPLETE . $twinSep . self::YOUR_SETTINGS . $twinSep . self::PREFERRED_CARS . $twinSep;
 
         $lastMessId = $chat->storage()->get('message_id');
-        $this->appendToMess('car_brand_text', 'Бренд машины:', $mess, $chat);
+        $this->appendToMess('car_brand_name', 'Бренд машины:', $mess, $chat);
         $this->appendToMess('car_model_name', 'Модель машины:', $mess, $chat);
 
-
-
         //change logic
-        $carPriceLow =  $chat->storage()->get('car_price_low') ?: 0;
+        $carPriceLow = $chat->storage()->get('car_price_low') ?: 0;
+
+        if ($carPriceLow === 0) {
+            $chat->storage()->forget('car_price_state');
+        }
 
         if ($data->get("car_price_high")) {
             $carPriceHigh = $data->get("car_price_high");
@@ -56,7 +58,7 @@ class CarPrice
             $mess .= "*Ценовой диапозон:*\n " . $carPriceLow . " - " . $carPriceHigh . "\n";
         }
 
-        $mess .= "Чтобы найти нужные вам машины, воспользуйтесь командой /search или кнопкой 🔍 Начать поиск";
+        $mess .= "Чтобы найти нужные вам машины, воспользуйтесь командой /search или кнопкой 🔍 Начать поиск\nНажмите /store ⬇️, чтобы сохранить фильтр";
         $kb = $this->pagination->addPaginationToKb(Keyboard::make(), "set_car_price", "back_to_settings");
 
         $chat->edit($lastMessId)->message($mess)->keyboard($kb)->send();

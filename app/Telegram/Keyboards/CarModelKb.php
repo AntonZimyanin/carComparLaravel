@@ -2,29 +2,19 @@
 
 namespace App\Telegram\Keyboards;
 
-use App\Telegram\Keyboards\Builder\Trait\KbWithPagination;
-use App\Telegram\Keyboards\Builder\KeyboardBuilder;
 use App\Telegram\Api\AvBy\AvByApi;
 
 use DefStudio\Telegraph\Keyboard\Button;
+use DefStudio\Telegraph\Keyboard\Keyboard;
 
 class CarModelKb extends BaseKb
 {
-    // Use the KbWithPagination trait
-    use KbWithPagination;
     private AvByApi $av;
     private string $carBrandSlug;
-    private KeyboardBuilder $kbBuilder;
-
-
-    public function __construct(AvByApi $av, KeyboardBuilder $kbBuilder)
-    {
+    public function __construct(AvByApi $av) {
         $this->av = $av;
-        $this->kbBuilder = $kbBuilder;
     }
-
-    public function setCarBrand(string $carBrandSlug): void
-    {
+    public function setCarBrand(string $carBrandSlug) : void {
         $this->carBrandSlug = $carBrandSlug;
     }
 
@@ -33,21 +23,29 @@ class CarModelKb extends BaseKb
         return $this->av->getModels($this->carBrandSlug);
 
     }
-
-    /**
-     * @return array<Button>
-     */
     public function getButtons(): array
     {
         $carModels = $this->getCarModels();
         $buttons = [];
 
         foreach ($carModels as $carModel) {
-            $buttons[] = Button::make($carModel['slug'])
+            $buttons[] = Button::make($carModel['name'])
                 ->action('set_car_model')
-                ->param('car_model_id', $carModel['id'])
                 ->param('car_model_name', $carModel['slug']);
         }
         return $buttons;
+    }
+
+    public function getInlineKb(): Keyboard
+    {
+        $buttons = $this->getButtons();
+        $len = count($buttons);
+        $kb = Keyboard::make();
+        for ($i = 0; $i < $len; $i += 2) {
+            $step = min(2, $len - $i);
+            $kb->row(array_slice($buttons, $i, $step));
+        }
+        return $kb;
+
     }
 }

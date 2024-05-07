@@ -5,16 +5,11 @@ namespace App\Telegram\Parser\AvBy;
 use App\Telegram\Api\AvBy\AvByApi;
 use App\Telegram\Enum\AvByCarProperty;
 
-use DefStudio\Telegraph\Keyboard\Keyboard;
 use DefStudio\Telegraph\Models\TelegraphChat;
 use DOMDocument;
 use DOMXPath;
 use Illuminate\Support\Facades\Redis;
 
-
-//TODO:
-// - add av by api fot this class and change access to av by field +
-// - review the loop 114
 
 class AvByParser
 {
@@ -33,21 +28,32 @@ class AvByParser
     public function set(
         AvByCarProperty $p
     ): void {
-        $brandId = $this->avByApi->findBrandIdBySlug($p->carBrand);
-
+        $firstArg = false;
         if ($p->carBrand) {
+            $brandId = $this->avByApi->findBrandIdBySlug($p->carBrand);
             $this->url .= "?brands[0][brand]=" . $brandId;
+            $firstArg = true;
         }
-        if ($p->carModelId) {
-            $this->url .= "&brands[0][model]=" . $p->carModelId;
+        if ($p->carModelName) {
+            $modelId = $this->avByApi->findModelIdBySlug($p->carModelName, $brandId);
+            $this->url .= "&brands[0][model]=" . $modelId;
         }
-        if ($p->carPriceLow > 0) {
+        if ($p->carPriceLow > 0 and $firstArg) {
             $this->url .= "&price_usd[min]=" . $p->carPriceLow;
         }
-        if ($p->carPriceHigh > 0) {
+        else {
+            $this->url .= "?price_usd[min]=" . $p->carPriceLow;
+            $firstArg = true;
+        }
+        if ((int)$p->carPriceHigh > 0 and $firstArg) {
             $this->url .= "&price_usd[max]=" . $p->carPriceHigh;
         }
+        else {
+            $this->url .= "?price_usd[max]=" . $p->carPriceHigh;
+        }
     }
+
+
 
     public function parse(TelegraphChat $chat): void
     {
@@ -71,16 +77,15 @@ class AvByParser
             $jsonData = json_decode(trim($textContent), true, 512, JSON_UNESCAPED_UNICODE);
             if (json_last_error() === JSON_ERROR_NONE) {
                 $extractedData[] = $jsonData;
+
             }
         }
-        if (empty($extractedData)) {
-            $chat->message("Ничего не найдено2")->send();
+        if (empty($extractedData) || 
+        empty($extractedData[0]['props']['initialState']['filter']['main']['adverts'])
+        ) {
             return;
         }
-        if ($extractedData[0]['props']['initialState']['filter']['main']['adverts'] == 0) {
-            $chat->message("Ничего не найдено1\n {$this->url}")->send();
-            return;
-        }
+
         $sellerName = '';
         $locationName = '';
         $brand = '';
@@ -89,7 +94,6 @@ class AvByParser
         $year = '';
         $publicUrl = '';
         $price = '';
-        $photoUrl = '';
         $i = 0;
         foreach ($extractedData[0]['props']['initialState']['filter']['main']['adverts'] as $fields) {
 
@@ -117,24 +121,21 @@ class AvByParser
                 if ($key == 'price') {
                     $price = $val["usd"]["amount"];
                 }
-
-                if ($key == 'photos') {
-                    $photoUrl = $val[0]['medium']['url'];
-                }
             }
-            Redis::hSet("car:$i",
-                "sellername", $sellerName,
-                "locationname", $locationName,
-                "brand", $brand,
-                "model", $model,
-                "generation", $generation,
-                "year", $year,
-                "publicurl", $publicUrl,
-                "price", $price,
-                "photourl", $photoUrl
-            );
+
+             Redis::hSet("car:$i",
+                 "sellername", $sellerName,
+                 "locationname", $locationName,
+                 "brand", $brand,
+                 "model", $model,
+                 "generation", $generation,
+                 "year", $year,
+                 "publicurl", $publicUrl,
+                 "price", $price,
+             );
             $i++;
         }
         $chat->message("Поиск завершен")->send();
+        Redis::set("car_count", $i);
     }
 }

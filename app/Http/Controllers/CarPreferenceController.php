@@ -16,6 +16,13 @@ class CarPreferenceController extends Controller
         return CarPreference::where('chat_id', $chatId)->get();
     }
 
+    public function get(int $chatId, int $propetry)
+    {
+//        return CarPreference::where('chat_id', $chatId)
+//            ->where('id', $id)
+//            ->first();
+    }
+
     /**
      * Show the form for creating a new resource.
      */
@@ -24,7 +31,7 @@ class CarPreferenceController extends Controller
         $preferences = CarPreference::create([
             'chat_id' => $property->chatId,
             'car_brand' => $property->carBrand,
-            'car_model' => $property->carModelId,
+            'car_model' => $property->carModelName,
             'car_price_low' => $property->carPriceLow,
             'car_price_high' => $property->carPriceHigh,
         ]);
@@ -32,6 +39,18 @@ class CarPreferenceController extends Controller
         $preferences->save();
 
         return $preferences;
+    }
+
+    public function copy(int $chatId, int $id)
+    {
+        $preference = CarPreference::where('chat_id', $chatId)
+            ->where('id', $id)
+            ->first();
+
+        $newPreference = $preference->replicate();
+        $newPreference->save();
+
+        return $newPreference;
     }
 
     public function store()
@@ -66,8 +85,10 @@ class CarPreferenceController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(CarPreference $carPreference)
+    public function destroy(int $chatId, int $id)
     {
-        //
+        return CarPreference::where('chat_id', '=' ,$chatId)
+            ->where('id', '=', $id)
+            ->delete();
     }
 }

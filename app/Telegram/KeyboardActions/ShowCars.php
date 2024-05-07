@@ -42,7 +42,7 @@ class ShowCars
         $buttons = [];
 
         foreach ($brands as $brand) {
-            $buttons[] = Button::make($brand['slug'])
+            $buttons[] = Button::make($brand['name'])
                 ->action('set_car_brand')
                 ->param('car_brand', $brand['slug']);
         }
@@ -61,12 +61,12 @@ class ShowCars
     {
         $initLetter = $data->get('letter');
 
-        if (empty($initLetter)) {
-            $chat->message("i'm here")->send();
+        if (empty($initLetter) && $chat->storage()->get('init_letter')) {
             $this->carModel->setCarModel($chat, $data);
             return;
         }
 
+        $chat->storage()->set('init_letter', $initLetter);
         $brands = $this->getAllCarBrands();
         $brandsBeginningWithLetter = array_filter($brands, function ($brand) use ($initLetter) {
             return $brand['name'][0] === $initLetter;

@@ -17,21 +17,30 @@ class SettingKb
     {
         $kb = Keyboard::make()
             ->row([
-                Button::make('Добавить фильтр')->action('add_filter')
+                Button::make('Добавить фильтр➕')->action('add_filter')
             ]);
 
 
         $pref = $this->carPrefController->index($chatId);
         if (!empty($pref)) {
+            $i = 1;
             foreach ($pref as $p) {
+                if ($p['car_brand'] && $p['car_model']) {
+                    $kb->row([
+                        Button::make($p['car_brand'] . ' ' . $p['car_model'])->action('filter_page'),
+                    ]);
+                }
+                else {
+                    $kb->row([
+                        Button::make('Фильтр ' . $i)->action('filter_page'),
+                    ]);
+                }
                 $kb->row([
-                    Button::make($p['car_brand'] . ' ' . $p['car_model'])->action('filter_page'),
-                ])
-                ->row([
-                    Button::make('⚙️')->action('change_filter')->param('chat_id', $p['id']),
-                    Button::make('©️')->action('copy_filter')->param('chat_id', $p['id']),
-                    Button::make('❌')->action('delete_filter')->param('chat_id', $p['id']),
+                    Button::make('⚙️')->action('change_filter')->param('pref_id', $p['id']),
+                    Button::make('©️')->action('copy_filter')->param('pref_id', $p['id']),
+                    Button::make('❌')->action('delete_filter')->param('pref_id', $p['id']),
                 ]);
+                $i++;
             }
         }
 

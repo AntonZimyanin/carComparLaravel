@@ -34,7 +34,6 @@ class KeyboardBuilder
         return $kb;
     }
 
-
     public function buildWithPagination(string $currPage, string $nextPage): Keyboard
     {
         $kb = Keyboard::make();

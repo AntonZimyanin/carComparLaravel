@@ -10,12 +10,10 @@ use DefStudio\Telegraph\Models\TelegraphChat;
 class Filter
 {
     private AlphabetKb $alphabetKb;
-
     public function __construct(AlphabetKb $alphabetKb)
     {
         $this->alphabetKb = $alphabetKb;
     }
-
     /**
      * @throws StorageException
      */

@@ -57,7 +57,6 @@ class PaginationKb
      */
     public function addPaginationToKb(Keyboard $kb, string $currPage, string $nextPage): Keyboard
     {
-        $arr = [];
         if ($currPage === 'set_car_price') {
             self::$path = [];
             return $kb->row([
@@ -67,26 +66,25 @@ class PaginationKb
         }
 
         self::$path = (array)Redis::hGetAll('path');
-        if (self::$path[0] !== '') {
-           // 
-        }
-        else {
+        if (!empty(self::$path[0]) && self::$path[0] === '') {
             self::$path = [];
         }
-        $prevPage = end($arr);
-        $prevAction = count($arr) == 0 ? 'back_to_settings' : $prevPage;
+
+        $prevPage = end(self::$path);
+        $prevAction = empty(self::$path) ? 'back_to_settings' : $prevPage;
 
         if ($prevPage === $currPage) {
-            array_pop($arr);
+            array_pop(self::$path);
         }
         $kb->row([
             Button::make('Назад')->action($prevAction),
             Button::make('Вперед')->action($nextPage),
         ]);
-        $arr[] = $currPage;
+        self::$path[] = $currPage;
+
 
         $inx = array_search($currPage, self::$fullPath);
-        Redis::hSet('path', $inx, end($arr));
+        Redis::hSet('path', $inx, end(self::$path));
 
         return $kb;
     }

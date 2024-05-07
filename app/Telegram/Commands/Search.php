@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Telegram\KeyboardActions;
+namespace App\Telegram\Commands;
 
 use App\Http\Controllers\CarPreferenceController;
 use App\Telegram\Enum\AvByCarProperty;
@@ -15,7 +15,6 @@ class Search
 {
     private CarPreferenceController $carPrefController;
 
-    private AvByParser $parser;
     private AvByCarProperty $property;
 
     public function __construct(
@@ -24,7 +23,6 @@ class Search
         AvByCarProperty $property,
 
     ) {
-        $this->carPrefController = $carPrefController;
         $this->parser = $parser;
         $this->property = $property;
     }
@@ -33,17 +31,15 @@ class Search
      */
     public function search(TelegraphChat $chat): void
     {
-
-        $carModelId = $chat->storage()->get('car_model_id');
-
-        $carBrand = $chat->storage()->get('car_brand_text');
-        $carPriceLow = (int)$chat->storage()->get('car_brand_text') ?? 0;
-        $carPriceHigh = (int)$chat->storage()->get('car_price_high');
+        $carModelName = $chat->storage()->get("car_model_name") ?? '';
+        $carBrand = $chat->storage()->get('car_brand_name') ?? '';
+        $carPriceLow = (int)$chat->storage()->get('car_price_low') ?? 0;
+        $carPriceHigh = (int)$chat->storage()->get('car_price_high') ?? 0;
 
         $this->property->set(
             $chat->id,
             $carBrand,
-            $carModelId,
+            $carModelName,
             $carPriceLow,
             $carPriceHigh,
         );
@@ -51,22 +47,26 @@ class Search
         $this->parser->set(
             $this->property,
         );
-
-        $this->carPrefController->create($this->property);
         $chat->message("Поиск начат...")->send();
-
         $this->parser->parse($chat);
-
         $chat->storage()->forget('message_id');
-
         $car = Redis::hGetAll("car:0");
+        $carCount = Redis::get('car_count');
 
-        $kb = Keyboard::make()
-            ->row([
-                Button::make('Назад')->action('show_parse_cars')->param('id', 0),
-                Button::make('Впред')->action('show_parse_cars')->param('id', 1),
-            ]);
-        $messId = $chat->photo($car['photourl'])->message(
+
+        if (empty($car)) {
+            $chat->message('Машин по заданным параметрам не найдено')->send();
+            return;
+        }
+
+        $kb = Keyboard::make()->row([
+            Button::make("1/$carCount")->action('page_number')->param('id', 0),
+        ])
+        ->row([
+            Button::make('Назад')->action('show_parse_cars')->param('id', 0),
+            Button::make('Вперед')->action('show_parse_cars')->param('id', 1),
+        ]);
+        $messId = $chat->message(
                 "
 Продавец: {$car['sellername']}
 Город: {$car['locationname']}
@@ -77,9 +77,9 @@ class Search
 Цена: {$car['price']}$
 Ссылка: {$car['publicurl']} "
             )->keyboard($kb)->send()->telegraphMessageId();
-        $chat->storage()->set('message_id', $messId);
 
-
+        $chat->storage()->forget('car_list_message_id');
+        $chat->storage()->set('car_list_message_id', $messId);
     }
 
 }
