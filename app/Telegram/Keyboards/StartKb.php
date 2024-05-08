@@ -7,7 +7,7 @@ use DefStudio\Telegraph\Keyboard\ReplyKeyboard;
 
 class StartKb
 {
-    public function getStartKb(): ReplyKeyboard
+    public function __invoke(): ReplyKeyboard
     {
         return ReplyKeyboard::make()
             ->row([

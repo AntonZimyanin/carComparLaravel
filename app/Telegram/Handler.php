@@ -2,8 +2,10 @@
 
 namespace App\Telegram;
 
+use App\Http\Controllers\CarPreferenceController;
 use App\Telegram\Commands\HelpCommand;
 use App\Telegram\Commands\Search;
+use App\Telegram\Commands\SetSort;
 use App\Telegram\Commands\SettingCommand;
 use App\Telegram\Commands\StartCommand;
 use App\Telegram\Commands\StoreCommand;
@@ -23,12 +25,14 @@ use Illuminate\Support\Stringable;
 
 class Handler extends WebhookHandler
 {
+    private CarPreferenceController $carPreferenceController;
     //commands
     private StartCommand $startCommand;
     private HelpCommand $helpCommand;
     private SettingCommand $settingCommand;
     private Search $search;
     private StoreCommand $storeCommand;
+    private SetSort $setSort;
 
     //action
     private Filter $filter;
@@ -50,6 +54,9 @@ class Handler extends WebhookHandler
         FilterAction $filterAction,
         HelpCommand $helpCommand,
         StoreCommand $storeCommand,
+        SetSort $setSort,
+
+        CarPreferenceController $carPreferenceController
     ) {
         parent::__construct();
         $this->startCommand = $startCommand;
@@ -64,6 +71,8 @@ class Handler extends WebhookHandler
         $this->filterAction = $filterAction;
         $this->helpCommand = $helpCommand;
         $this->storeCommand = $storeCommand;
+        $this->setSort = $setSort;
+        $this->carPreferenceController = $carPreferenceController;
     }
 
     /**
@@ -90,27 +99,7 @@ class Handler extends WebhookHandler
     }
 
     public function set_sort(): void{
-        $kb = Keyboard::make()->row([
-            Button::make('Актуальные')->action('set_sort_action')->param('sort', 1),
-        ])->row([
-            Button::make('Дешёвые')->action('set_sort_action')->param('sort', 2)
-        ])->row([
-            Button::make('Дорогие')->action('set_sort_action')->param('sort', 3),
-        ])->row([
-            Button::make('Новые объявления')->action('set_sort_action')->param('sort', 4),
-        ])->row([
-            Button::make('Старые объявления')->action('set_sort_action')->param('sort', 5),
-        ])->row([
-            Button::make('С наименьшим пробегом')->action('set_sort_action')->param('sort', 8),
-        ])->row([
-            Button::make('Новые по году')->action('set_sort_action')->param('sort', 6),
-        ])->row([
-            Button::make('Старые по году')->action('set_sort_action')->param('sort', 7),
-        ]);
-
-        $messSortId = $this->chat->message("Выбери способ сортировки машин")
-            ->keyboard($kb)->send()->telegraphMessageId();
-        $this->chat->storage()->set('sort_message_id', $messSortId);
+        $this->setSort->get($this->chat);
     }
 
     public function set_sort_action()
@@ -120,6 +109,32 @@ class Handler extends WebhookHandler
         $messSortId = $this->chat->storage()->get('sort_message_id');
         $this->chat->message( $sort)->send();
 //        $this->chat->edit($messSortId)->message("Сортировка успешно установлена")->send();
+    }
+
+    public function use_filer()
+    {
+        $fId = $this->data->get('filter_id');
+        $this->chat->storage()->set('filter_id', $fId);
+
+        $lastMessId = $this->chat->storage()->get('message_id');
+        $preference = $this->carPreferenceController->get($this->chat->id, $fId);
+        $mess = "Текущие настройки";
+        $kb = Keyboard::make()->row([
+            Button::make('Начать поиск')->action('search')->param('searchId', $fId),
+
+        ])
+            ->row([
+
+                Button::make('Назад')->action('delete_filter')->param('id', $fId),
+                Button::make('Изменить')->action('edit_filter')->param('id', $fId),
+
+            ])
+        ;
+//        $this->chat->storage()->set('filter_id', $fId);
+        $this->chat
+            ->edit($lastMessId)
+            ->message($mess . "\n"  . $fId)
+            ->keyboard($kb)->send();
     }
 
     /**
@@ -198,15 +213,25 @@ class Handler extends WebhookHandler
      */
     public function search(): void
     {
-        $this->search->search(
-            $this->chat,
-        );
+        $searchId = $this->chat->storage()->get('filter_id');
+        if ($searchId ){
+            $this->search->searchKb(
+                $this->chat,
+                $searchId
+            );
+        }
+        else {
+            $this->search->search(
+                $this->chat,
+            );
+        }
+
 
     }
 
     public function show_parse_cars() : void {
         $lastMessId = $this->chat->storage()->get('car_list_message_id');
-        $carId = $this->data->get('id');
+        $carId = $this->data->get('car_id');
 
         $car = Redis::hGetAll("car:$carId");
         $carCount = Redis::get('car_count');
@@ -216,8 +241,8 @@ class Handler extends WebhookHandler
             Button::make("{$pageNumber}/$carCount")->action('page_number')->param('id', 0),
         ])
             ->row([
-                Button::make('Назад')->action('show_parse_cars')->param('id', $carId - 1),
-                Button::make('Вперед')->action('show_parse_cars')->param('id', $carId + 1),
+                Button::make('Назад')->action('show_parse_cars')->param('car_id', $carId - 1),
+                Button::make('Вперед')->action('show_parse_cars')->param('car_id', $carId + 1),
             ]);
 
         $this->chat->edit($lastMessId)->message(

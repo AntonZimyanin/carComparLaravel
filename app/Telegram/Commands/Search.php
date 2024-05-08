@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Redis;
 
 class Search
 {
+    private AvByParser $parser;
     private CarPreferenceController $carPrefController;
 
     private AvByCarProperty $property;
@@ -24,6 +25,7 @@ class Search
 
     ) {
         $this->parser = $parser;
+        $this->carPrefController = $carPrefController;
         $this->property = $property;
     }
     /**
@@ -31,10 +33,13 @@ class Search
      */
     public function search(TelegraphChat $chat): void
     {
+        $lastMessId = $chat->storage()->get('message_id');
+        $chat->deleteKeyboard($lastMessId)->send();
         $carModelName = $chat->storage()->get("car_model_name") ?? '';
         $carBrand = $chat->storage()->get('car_brand_name') ?? '';
         $carPriceLow = (int)$chat->storage()->get('car_price_low') ?? 0;
         $carPriceHigh = (int)$chat->storage()->get('car_price_high') ?? 0;
+
 
         $this->property->set(
             $chat->id,
@@ -47,9 +52,11 @@ class Search
         $this->parser->set(
             $this->property,
         );
+
         $chat->message("Поиск начат...")->send();
+
         $this->parser->parse($chat);
-        $chat->storage()->forget('message_id');
+//        $chat->storage()->forget('message_id');
         $car = Redis::hGetAll("car:0");
         $carCount = Redis::get('car_count');
 
@@ -63,8 +70,8 @@ class Search
             Button::make("1/$carCount")->action('page_number')->param('id', 0),
         ])
         ->row([
-            Button::make('Назад')->action('show_parse_cars')->param('id', 0),
-            Button::make('Вперед')->action('show_parse_cars')->param('id', 1),
+            Button::make('Назад')->action('show_parse_cars')->param('car_id', 0),
+            Button::make('Вперед')->action('show_parse_cars')->param('car_id', 1),
         ]);
         $messId = $chat->message(
                 "
@@ -81,5 +88,63 @@ class Search
         $chat->storage()->forget('car_list_message_id');
         $chat->storage()->set('car_list_message_id', $messId);
     }
+
+
+    public function searchKb(TelegraphChat $chat, int $searchId): void
+    {
+        $pref = $this->carPrefController->get($chat->id, $searchId);
+
+        $this->property->set(
+            $chat->id,
+            $pref['car_brand'],
+            $pref['car_model'],
+            $pref['car_price_low'],
+$pref['car_price_high'],
+        );
+
+        $this->parser->set(
+            $this->property,
+        );
+
+
+        $chat->message("Поиск начат...")->send();
+
+        $this->parser->parse($chat);
+//        $chat->storage()->forget('message_id');
+        $car = Redis::hGetAll("car:0");
+        $carCount = Redis::get('car_count');
+
+
+        if (empty($car)) {
+            $chat->message('Машин по заданным параметрам не найдено')->send();
+            return;
+        }
+
+        $kb = Keyboard::make()->row([
+            Button::make("1/$carCount")->action('page_number')->param('id', 0),
+        ])
+            ->row([
+                Button::make('Назад')->action('show_parse_cars')->param('car_id', 0),
+                Button::make('Вперед')->action('show_parse_cars')->param('car_id', 1),
+            ]);
+        $messId = $chat->message(
+            "
+Продавец: {$car['sellername']}
+Город: {$car['locationname']}
+Бренд: {$car['brand']}
+Модель: {$car['model']}
+Поколение: {$car['generation']}
+Год: {$car['year']}
+Цена: {$car['price']}$
+Ссылка: {$car['publicurl']} "
+        )->keyboard($kb)->send()->telegraphMessageId();
+
+        $chat->storage()->forget('car_list_message_id');
+        $chat->storage()->set('car_list_message_id', $messId);
+
+    }
+
+
+
 
 }

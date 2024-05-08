@@ -18,14 +18,9 @@ class CarModelKb extends BaseKb
         $this->carBrandSlug = $carBrandSlug;
     }
 
-    private function getCarModels()
-    {
-        return $this->av->getModels($this->carBrandSlug);
-
-    }
     public function getButtons(): array
     {
-        $carModels = $this->getCarModels();
+        $carModels = $this->av->getModels($this->carBrandSlug);
         $buttons = [];
 
         foreach ($carModels as $carModel) {

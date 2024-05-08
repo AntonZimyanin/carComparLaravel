@@ -8,6 +8,7 @@ use App\Telegram\Enum\AvByCarProperty;
 use DefStudio\Telegraph\Models\TelegraphChat;
 use DOMDocument;
 use DOMXPath;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Redis;
 
 
@@ -28,24 +29,27 @@ class AvByParser
     public function set(
         AvByCarProperty $p
     ): void {
-        $firstArg = false;
+        $isFirstArg = true;
         if ($p->carBrand) {
             $brandId = $this->avByApi->findBrandIdBySlug($p->carBrand);
             $this->url .= "?brands[0][brand]=" . $brandId;
-            $firstArg = true;
+            $isFirstArg = false;
         }
         if ($p->carModelName) {
             $modelId = $this->avByApi->findModelIdBySlug($p->carModelName, $brandId);
             $this->url .= "&brands[0][model]=" . $modelId;
         }
-        if ($p->carPriceLow > 0 and $firstArg) {
-            $this->url .= "&price_usd[min]=" . $p->carPriceLow;
+
+        if ($p->carPriceLow > 0) {
+            if ($isFirstArg) {
+                $this->url .= "?price_usd[min]=" . $p->carPriceLow;
+                $isFirstArg = false;
+            }
+            else {
+                $this->url .= "&price_usd[min]=" . $p->carPriceLow;
+            }
         }
-        else {
-            $this->url .= "?price_usd[min]=" . $p->carPriceLow;
-            $firstArg = true;
-        }
-        if ((int)$p->carPriceHigh > 0 and $firstArg) {
+        if ($p->carPriceHigh > 0 && !$isFirstArg) {
             $this->url .= "&price_usd[max]=" . $p->carPriceHigh;
         }
         else {
@@ -57,12 +61,18 @@ class AvByParser
 
     public function parse(TelegraphChat $chat): void
     {
+
         //        $url = "https://cars.av.by/filter?brands[0][brand]=6&brands[0][model]=5812&brands[0][generation]=4316&price_usd[max]=20000";
 
-        $handle = curl_init($this->url);
-        curl_setopt($handle, CURLOPT_RETURNTRANSFER, true);
-        $html = curl_exec($handle);
+        // $handle = curl_init($this->url);
+        // curl_setopt($handle, CURLOPT_RETURNTRANSFER, true);
+        // curl_setopt($handle, CURLOPT_HTTPHEADER, ['User-Agent' => 'Mozilla/5.0 (X11; Linux i686; rv:125.0) Gecko/20100101 Firefox/125.0'  ]);
+        // $html = curl_exec($handle);
+        $html = Http::withHeaders([
+            'User-Agent' => 'Mozilla/5.0 (X11; Linux i686; rv:125.0) Gecko/20100101 Firefox/125.0'
+        ])->get($this->url)->body();
         libxml_use_internal_errors(true);
+//
         $doc = new DOMDocument();
 
         $doc->loadHTML($html);
@@ -80,7 +90,7 @@ class AvByParser
 
             }
         }
-        if (empty($extractedData) || 
+        if (empty($extractedData) ||
         empty($extractedData[0]['props']['initialState']['filter']['main']['adverts'])
         ) {
             return;
@@ -122,7 +132,7 @@ class AvByParser
                     $price = $val["usd"]["amount"];
                 }
             }
-
+            Redis::del("car:$i");
              Redis::hSet("car:$i",
                  "sellername", $sellerName,
                  "locationname", $locationName,
@@ -135,7 +145,6 @@ class AvByParser
              );
             $i++;
         }
-        $chat->message("Поиск завершен")->send();
         Redis::set("car_count", $i);
     }
 }

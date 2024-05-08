@@ -158,7 +158,7 @@ class AvByParser
                 $extractedData[] = $jsonData;
             }
         }
-        $i = 1;
+        $i = 0;
         $sellerName = '';
         $locationName = '';
         $brand = '';

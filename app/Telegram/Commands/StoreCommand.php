@@ -46,8 +46,14 @@ class StoreCommand
 
         $filter = $this->carPrefController->create($this->property);
 
+
+        $chat->storage()->forget('car_brand_name');
+        $chat->storage()->forget('car_model_name');
+        $chat->storage()->forget('car_price_low');
+        $chat->storage()->forget('car_price_high');
+
         if ($filter) {
-            $chat->message('Настройки успешно сохранены👌')->send();
+            $chat->message('Настройки успешно сохранены✅')->send();
         } else {
             $chat->message('Ошибка сохранения настроек')->send();
         }

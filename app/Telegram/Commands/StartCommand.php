@@ -32,7 +32,7 @@ class StartCommand
     {
 
         $chat->message(self::mess)->replyKeyboard(
-            $this->kb->getStartKb()
+            ($this->kb)()
         )->send();
     }
 }

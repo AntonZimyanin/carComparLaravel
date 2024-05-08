@@ -16,11 +16,11 @@ class CarPreferenceController extends Controller
         return CarPreference::where('chat_id', $chatId)->get();
     }
 
-    public function get(int $chatId, int $propetry)
+    public function get(int $chatId, int $id) : CarPreference
     {
-//        return CarPreference::where('chat_id', $chatId)
-//            ->where('id', $id)
-//            ->first();
+        return CarPreference::where('chat_id', $chatId)
+            ->where('id', $id)
+            ->first();
     }
 
     /**

@@ -28,12 +28,28 @@ class SettingCommand
     /**
      * @throws StorageException
      */
-    public function sendCommand($chat): void
+    public function sendCommand(TelegraphChat $chat): void
     {
-        $kb = $this->kb->getSettings($chat->id);
+//        Redis::flushAll();
+//        if (Redis::hGetAll("path")) {
+//            Redis::del("path");
+//        }
+//
+//        if ($chat->storage()->get("car_model_name") ||  $chat->storage()->get("car_brand_name")) {
+//            $chat->storage()->forget("car_model_name");
+//            $chat->storage()->forget("car_brand_name");
+//            $chat->storage()->forget("car_price_low");
+//            $chat->storage()->forget("car_price_high");
+//        }
+//        $lastMessId = $chat->storage()->get('message_id');
+//
+//        if ($lastMessId) {
+//            $chat->deleteMessage($lastMessId)->send();
+//        }
+
 
         $messId = $chat->message(self::mess)->keyboard(
-            $kb
+            ($this->kb)($chat->id)
         )->send()->telegraphMessageId();
         $chat->storage()->set('message_id', $messId);
     }
@@ -43,22 +59,23 @@ class SettingCommand
      */
     public function backToSettings(TelegraphChat $chat): void
     {
-        $kb = $this->kb->getSettings($chat->id);
         $lastMessId = $chat->storage()->get('message_id');
-
         Redis::del("path");
 
-
         $chat->edit($lastMessId)->message(self::mess)->keyboard(
-            $kb
+            ($this->kb)($chat->id)
         )->send();
     }
 
     public function editKb(TelegraphChat $chat): void
     {
-        $kb = $this->kb->getSettings($chat->id);
         $lastMessId = $chat->storage()->get('message_id');
 
-        $chat->replaceKeyboard($lastMessId, $kb)->send();
+
+
+        $chat->replaceKeyboard(
+            $lastMessId,
+            ($this->kb)($chat->id)
+        )->send();
     }
 }

@@ -2,6 +2,8 @@
 
 namespace App\Telegram\Api\AvBy;
 
+use Illuminate\Support\Facades\Http;
+
 class AvByApi
 {
     private string $xApiKey = 'eec1bf3e24da7039e1ab116';
@@ -41,17 +43,25 @@ class AvByApi
             $brandId = $this->findBrandIdBySlug($brandSlug);
         }
 
-        $url = "https://api.av.by/offer-types/cars/catalog/brand-items/$brandId/models";
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, [
-            'X-Api-Key: ' . $this->xApiKey
-        ]);
-        $result = curl_exec($ch);
-        curl_close($ch);
 
-        return json_decode($result, true);
+
+        $url = "https://api.av.by/offer-types/cars/catalog/brand-items/$brandId/models";
+
+        return Http::withHeaders([
+            'X-Api-Key' => $this->xApiKey,
+            'User-Agent' => 'Mozilla/5.0 (X11; Linux i686; rv:125.0) Gecko/20100101 Firefox/125.0'
+        ])->get($url)->json();
+
+//        $ch = curl_init();
+//        curl_setopt($ch, CURLOPT_URL, $url);
+//        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+//        curl_setopt($ch, CURLOPT_HTTPHEADER, [
+//            'X-Api-Key:' . $this->xApiKey
+//        ]);
+//        $result = curl_exec($ch);
+//        curl_close($ch);
+
+//        return json_decode($result, true);
     }
 
 

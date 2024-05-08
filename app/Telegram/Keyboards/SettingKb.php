@@ -13,7 +13,7 @@ class SettingKb
     {
         $this->carPrefController = $carPrefController;
     }
-    public function getSettings(int $chatId = null): Keyboard
+    public function __invoke(int $chatId = null): Keyboard
     {
         $kb = Keyboard::make()
             ->row([
@@ -27,7 +27,7 @@ class SettingKb
             foreach ($pref as $p) {
                 if ($p['car_brand'] && $p['car_model']) {
                     $kb->row([
-                        Button::make($p['car_brand'] . ' ' . $p['car_model'])->action('filter_page'),
+                        Button::make('👁️ ' . $p['car_brand'] . ' ' . $p['car_model'])->action('use_filer')->param('filter_id', $p['id']),
                     ]);
                 }
                 else {

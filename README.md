@@ -30,10 +30,14 @@ php artisan serve --port 8080
 
 
 # TODO: 
+    - redis model -
+    - fix model of communiction kb and search -
+    - car in the memory?
 
         //TODO: create logic for back to previous page : create new func or change logic for current func
-        - create sort by price or other property -
-        - fix search (bmw) - 
+        - create sort by price or other property +
+        - fix search (bmw) +
+        
 
         - change price buidl filter +
         - change forget message id logic +
@@ -47,15 +51,13 @@ php artisan serve --port 8080
     - add av by parse action + 
     - remove last keyboard + 
     - add reply button action +
-
     
-    - redis cache insted of file -  
-    - redis model -
+    - redis cache insted of file +
+
     - pagination UI +  
     - class Parser for av by + 
-    - add filter value to DB (redis or mysql) +-
+    - add filter value to DB (redis or mysql) +
 
-    - add car generation  -
 
 
  - change the field of table User 
