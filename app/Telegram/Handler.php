@@ -80,7 +80,10 @@ class Handler extends WebhookHandler
      */
     public function start(): void
     {
-       $this->startCommand->sendCommand($this->chat);
+        $this->chat->storage()->set('aA', 1);
+        $aA = $this->chat->storage()->get('aA');
+        $this->chat->message("aA: $aA")->send();
+        $this->startCommand->sendCommand($this->chat);
     }
 
     public function help(): void
