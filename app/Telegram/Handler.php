@@ -2,6 +2,8 @@
 
 namespace App\Telegram;
 
+use App\Telegram\FSM\CarFSM;
+
 use App\Http\Controllers\CarPreferenceController;
 use App\Telegram\Commands\HelpCommand;
 use App\Telegram\Commands\Search;
@@ -25,6 +27,9 @@ use Illuminate\Support\Stringable;
 
 class Handler extends WebhookHandler
 {
+    //
+    private CarFSM $fsm;
+    //controllers
     private CarPreferenceController $carPreferenceController;
     //commands
     private StartCommand $startCommand;
@@ -56,7 +61,9 @@ class Handler extends WebhookHandler
         StoreCommand $storeCommand,
         SetSort $setSort,
 
-        CarPreferenceController $carPreferenceController
+        CarPreferenceController $carPreferenceController,
+
+        CarFSM $fsm
     ) {
         parent::__construct();
         $this->startCommand = $startCommand;
@@ -73,6 +80,7 @@ class Handler extends WebhookHandler
         $this->storeCommand = $storeCommand;
         $this->setSort = $setSort;
         $this->carPreferenceController = $carPreferenceController;
+        $this->fsm = $fsm;
     }
 
     /**
@@ -80,9 +88,12 @@ class Handler extends WebhookHandler
      */
     public function start(): void
     {
-        $this->chat->storage()->set('aA', 1);
-        $aA = $this->chat->storage()->get('aA');
-        $this->chat->message("aA: $aA")->send();
+//        $this->chat->storage()->set('aA', 1);
+//        $aA = $this->chat->storage()->get('aA');
+//        $this->chat->message("aA: $aA")->send();
+        $this->fsm->carBrand->set('brand', 'brandasdf');
+        $brand = $this->fsm->carBrand->get('brand');
+        $this->chat->message("brand: $brand")->send();
         $this->startCommand->sendCommand($this->chat);
     }
 

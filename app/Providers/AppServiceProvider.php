@@ -2,8 +2,10 @@
 
 namespace App\Providers;
 
-use App\Telegram\FSM\CarFSM;
+use App\Telegram\FSM\State;
+use DefStudio\Telegraph\Storage\CacheStorageDriver;
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\Str;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -12,10 +14,14 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        $this->app->bind(CarFSM::class, function ($app) {
-            return new CarFSM($app->make('telegraph.storage'));
+        $this->app->bind(State::class, function ($app) {
+
+            $config = $app->make('config')->get('telegraph.storage.stores.cache', []);
+
+            return new State($this->app->make(CacheStorageDriver::class, ['itemClass' => State::class, 'itemKey' => 'tgph', 'configuration' => $config]));
         });
     }
+
 
     /**
      * Bootstrap any application services.

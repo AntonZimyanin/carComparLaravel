@@ -13,28 +13,6 @@ class Meta {
         }
     }
 }
-class State extends Meta
-{
-    private StorageDriver $storage;
-
-    public string $field;
-
-    public function __construct(StorageDriver $storage)
-    {
-        parent::__construct($this);
-        $this->storage = $storage;
-    }
-    public function set($value): void
-    {
-        $this->field = $value;
-    }
-
-    public function get(): string
-    {
-        return $this->field;
-    }
-
-}
 
 class CarFSM
 {
@@ -43,12 +21,17 @@ class CarFSM
     public State $carPriceLow;
     public State $carPriceHigh;
 
-    public function __construct()
+    public function __construct(
+        State $carBrand,
+        State $carModel,
+        State $carPriceLow,
+        State $carPriceHigh
+    )
     {
-        $this->carBrand = new State();
-        $this->carModel = new State();
-        $this->carPriceLow = new State();
-        $this->carPriceHigh = new State();
+        $this->carBrand = $carBrand;
+        $this->carModel = $carModel;
+        $this->carPriceLow = $carPriceLow;
+        $this->carPriceHigh = $carPriceHigh;
     }
 
 }
