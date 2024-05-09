@@ -37,7 +37,7 @@ class SettingKb
                 }
                 $kb->row([
                     Button::make('⚙️')->action('change_filter')->param('pref_id', $p['id']),
-                    Button::make('©️')->action('copy_filter')->param('pref_id', $p['id']),
+                    Button::make('🔍')->action('search')->param('search_id', $p['id']),
                     Button::make('❌')->action('delete_filter')->param('pref_id', $p['id']),
                 ]);
                 $i++;

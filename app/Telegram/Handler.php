@@ -119,15 +119,9 @@ class Handler extends WebhookHandler
         $lastMessId = $this->chat->storage()->get('message_id');
         $preference = $this->carPreferenceController->get($this->chat->id, $fId);
         $mess = "Текущие настройки";
-        $kb = Keyboard::make()->row([
-            Button::make('Начать поиск')->action('search')->param('searchId', $fId),
-
-        ])
+        $kb = Keyboard::make()
             ->row([
-
                 Button::make('Назад')->action('delete_filter')->param('id', $fId),
-                Button::make('Изменить')->action('edit_filter')->param('id', $fId),
-
             ])
         ;
 //        $this->chat->storage()->set('filter_id', $fId);
@@ -213,7 +207,7 @@ class Handler extends WebhookHandler
      */
     public function search(): void
     {
-        $searchId = $this->chat->storage()->get('filter_id');
+        $searchId = $this->data->get('search_id');
         if ($searchId ){
             $this->search->searchKb(
                 $this->chat,

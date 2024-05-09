@@ -52,8 +52,8 @@ class CarPrice
             $chat->storage()->forget('car_price_state');
         }
 
-        if ($data->get("car_price_high")) {
-            $carPriceHigh = $data->get("car_price_high");
+        if ($data->get("car_price_high") || $chat->storage()->get("car_price_high")) {
+            $carPriceHigh = $data->get("car_price_high") ?? $chat->storage()->get("car_price_high");
             $chat->storage()->set('car_price_high', $carPriceHigh);
             $mess .= "*Ценовой диапозон:*\n " . $carPriceLow . " - " . $carPriceHigh . "\n";
         }

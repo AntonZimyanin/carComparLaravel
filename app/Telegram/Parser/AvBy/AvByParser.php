@@ -17,6 +17,8 @@ class AvByParser
     private string $xApiKey;
     private string $url;
     private AvByApi $avByApi;
+    private int $brandId;
+    private int $modelId;
     public function __construct(AvByApi $avByApi)
     {
         $this->url = "https://cars.av.by/filter";
@@ -31,13 +33,13 @@ class AvByParser
     ): void {
         $isFirstArg = true;
         if ($p->carBrand) {
-            $brandId = $this->avByApi->findBrandIdBySlug($p->carBrand);
-            $this->url .= "?brands[0][brand]=" . $brandId;
+            $this->brandId = $this->avByApi->findBrandIdBySlug($p->carBrand);
+            $this->url .= "?brands[0][brand]=" . $this->brandId;
             $isFirstArg = false;
         }
         if ($p->carModelName) {
-            $modelId = $this->avByApi->findModelIdBySlug($p->carModelName, $brandId);
-            $this->url .= "&brands[0][model]=" . $modelId;
+            $this->modelId = $this->avByApi->findModelIdBySlug($p->carModelName, $this->brandId);
+            $this->url .= "&brands[0][model]=" . $this->modelId;
         }
 
         if ($p->carPriceLow > 0) {
@@ -55,8 +57,8 @@ class AvByParser
         else {
             $this->url .= "?price_usd[max]=" . $p->carPriceHigh;
         }
-    }
 
+    }
 
 
     public function parse(TelegraphChat $chat): void
@@ -72,7 +74,7 @@ class AvByParser
             'User-Agent' => 'Mozilla/5.0 (X11; Linux i686; rv:125.0) Gecko/20100101 Firefox/125.0'
         ])->get($this->url)->body();
         libxml_use_internal_errors(true);
-//
+//      
         $doc = new DOMDocument();
 
         $doc->loadHTML($html);
@@ -132,8 +134,13 @@ class AvByParser
                     $price = $val["usd"]["amount"];
                 }
             }
-            Redis::del("car:$i");
-             Redis::hSet("car:$i",
+
+            //TODO: fix paramert
+            $brandLowCase = strtolower($brand);
+            // $chat->message($brandLowCase)->send();
+            // Redis::del("car:{$brandLowCase}:$i");
+            // $chat->message(strtolower($brand))->send();
+            Redis::hSet("car:$brandLowCase:$i",
                  "sellername", $sellerName,
                  "locationname", $locationName,
                  "brand", $brand,

@@ -34,20 +34,23 @@ class Search
     public function search(TelegraphChat $chat): void
     {
         $lastMessId = $chat->storage()->get('message_id');
+
         $chat->deleteKeyboard($lastMessId)->send();
+
         $carModelName = $chat->storage()->get("car_model_name") ?? '';
-        $carBrand = $chat->storage()->get('car_brand_name') ?? '';
+        $carBrandName = $chat->storage()->get('car_brand_name') ?? '';
         $carPriceLow = (int)$chat->storage()->get('car_price_low') ?? 0;
         $carPriceHigh = (int)$chat->storage()->get('car_price_high') ?? 0;
-
+        
 
         $this->property->set(
-            $chat->id,
-            $carBrand,
+            $chat->id,  
+            $carBrandName,
             $carModelName,
             $carPriceLow,
             $carPriceHigh,
         );
+
 
         $this->parser->set(
             $this->property,
@@ -56,8 +59,10 @@ class Search
         $chat->message("Поиск начат...")->send();
 
         $this->parser->parse($chat);
+
 //        $chat->storage()->forget('message_id');
-        $car = Redis::hGetAll("car:0");
+        $lCaseBrand = strtolower($carBrandName); 
+        $car = Redis::hGetAll("car:{$lCaseBrand}:0");
         $carCount = Redis::get('car_count');
 
 
@@ -85,13 +90,14 @@ class Search
 Ссылка: {$car['publicurl']} "
             )->keyboard($kb)->send()->telegraphMessageId();
 
-        $chat->storage()->forget('car_list_message_id');
         $chat->storage()->set('car_list_message_id', $messId);
     }
 
 
     public function searchKb(TelegraphChat $chat, int $searchId): void
     {
+        $chat->message($searchId)->send();
+
         $pref = $this->carPrefController->get($chat->id, $searchId);
 
         $this->property->set(
@@ -102,6 +108,8 @@ class Search
 $pref['car_price_high'],
         );
 
+        $chat->message($pref['car_brand'])->send();
+
         $this->parser->set(
             $this->property,
         );
@@ -111,7 +119,8 @@ $pref['car_price_high'],
 
         $this->parser->parse($chat);
 //        $chat->storage()->forget('message_id');
-        $car = Redis::hGetAll("car:0");
+        $i = 0;
+        $car = Redis::hGetAll("car:{$pref['car_brand']}:$i");
         $carCount = Redis::get('car_count');
 
 
