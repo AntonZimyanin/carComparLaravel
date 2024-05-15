@@ -3,6 +3,7 @@
 namespace App\Telegram;
 
 use App\Telegram\FSM\CarFSM;
+use App\Telegram\FSM\StateManager;
 
 use App\Http\Controllers\CarPreferenceController;
 use App\Telegram\Commands\HelpCommand;
@@ -27,8 +28,10 @@ use Illuminate\Support\Stringable;
 
 class Handler extends WebhookHandler
 {
-    //
-    private CarFSM $fsm;
+    //FSM
+    private CarFSM $carFSM;
+    private StateManager $state;
+
     //controllers
     private CarPreferenceController $carPreferenceController;
     //commands
@@ -60,10 +63,9 @@ class Handler extends WebhookHandler
         HelpCommand $helpCommand,
         StoreCommand $storeCommand,
         SetSort $setSort,
-
         CarPreferenceController $carPreferenceController,
-
-        CarFSM $fsm
+        CarFSM $carFSM, 
+        StateManager $state
     ) {
         parent::__construct();
         $this->startCommand = $startCommand;
@@ -80,7 +82,8 @@ class Handler extends WebhookHandler
         $this->storeCommand = $storeCommand;
         $this->setSort = $setSort;
         $this->carPreferenceController = $carPreferenceController;
-        $this->fsm = $fsm;
+        $this->carFSM = $carFSM;
+        $this->state = $state;
     }
 
     /**
@@ -88,13 +91,12 @@ class Handler extends WebhookHandler
      */
     public function start(): void
     {
-//        $this->chat->storage()->set('aA', 1);
-//        $aA = $this->chat->storage()->get('aA');
-//        $this->chat->message("aA: $aA")->send();
-        $this->fsm->carBrand->set('brand', 'brandasdf');
-        $brand = $this->fsm->carBrand->get('brand');
+
+        $this->state->setData($this->carFSM->carBrand, 'audi');
+        $brand = $this->state->getData($this->carFSM->carBrand);
+
         $this->chat->message("brand: $brand")->send();
-        $this->startCommand->sendCommand($this->chat);
+        // $this->startCommand->sendCommand($this->chat);
     }
 
     public function help(): void
@@ -112,7 +114,8 @@ class Handler extends WebhookHandler
         );
     }
 
-    public function set_sort(): void{
+    public function set_sort(): void
+    {
         $this->setSort->get($this->chat);
     }
 
@@ -121,28 +124,16 @@ class Handler extends WebhookHandler
         //set sort
         $sort = $this->data->get('sort');
         $messSortId = $this->chat->storage()->get('sort_message_id');
-        $this->chat->message( $sort)->send();
-//        $this->chat->edit($messSortId)->message("Сортировка успешно установлена")->send();
+        $this->chat->message($sort)->send();
+        //        $this->chat->edit($messSortId)->message("Сортировка успешно установлена")->send();
     }
 
-    public function use_filer()
+    public function filer_data()
     {
-        $fId = $this->data->get('filter_id');
-        $this->chat->storage()->set('filter_id', $fId);
-
-        $lastMessId = $this->chat->storage()->get('message_id');
-        $preference = $this->carPreferenceController->get($this->chat->id, $fId);
-        $mess = "Текущие настройки";
-        $kb = Keyboard::make()
-            ->row([
-                Button::make('Назад')->action('delete_filter')->param('id', $fId),
-            ])
-        ;
-//        $this->chat->storage()->set('filter_id', $fId);
-        $this->chat
-            ->edit($lastMessId)
-            ->message($mess . "\n"  . $fId)
-            ->keyboard($kb)->send();
+        $this->filterAction->show(
+            $this->chat, 
+            $this->data,
+        );
     }
 
     /**
@@ -150,7 +141,7 @@ class Handler extends WebhookHandler
      */
     public function add_filter(): void
     {
-        $this->filter->addFilter($this->chat);
+        $this->filter->addFilter($this->chat, $this->state);
     }
 
     /**
@@ -194,7 +185,6 @@ class Handler extends WebhookHandler
         $this->carPrice->setCarPrice(
             $this->chat,
             $this->data,
-
         );
     }
 
@@ -222,13 +212,12 @@ class Handler extends WebhookHandler
     public function search(): void
     {
         $searchId = $this->data->get('search_id');
-        if ($searchId ){
+        if ($searchId) {
             $this->search->searchKb(
                 $this->chat,
                 $searchId
             );
-        }
-        else {
+        } else {
             $this->search->search(
                 $this->chat,
             );
@@ -237,7 +226,8 @@ class Handler extends WebhookHandler
 
     }
 
-    public function show_parse_cars() : void {
+    public function show_parse_cars(): void
+    {
         $lastMessId = $this->chat->storage()->get('car_list_message_id');
         $carId = $this->data->get('car_id');
 
@@ -281,19 +271,19 @@ class Handler extends WebhookHandler
     public function copy_filter()
     {
         $this->chat->message("copy_")->send();
-//        $this->filterAction->copy(
-//            $this->chat,
-//            $this->data
-//        );
+        //        $this->filterAction->copy(
+        //            $this->chat,
+        //            $this->data
+        //        );
     }
 
     public function edit_filter()
     {
         $this->chat->message("edit")->send();
-//        $this->filterAction->edit(
-//            $this->chat,
-//            $this->data
-//        );
+        //        $this->filterAction->edit(
+        //            $this->chat,
+        //            $this->data
+        //        );
     }
 
 

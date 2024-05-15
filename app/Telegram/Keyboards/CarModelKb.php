@@ -11,10 +11,12 @@ class CarModelKb extends BaseKb
 {
     private AvByApi $av;
     private string $carBrandSlug;
-    public function __construct(AvByApi $av) {
+    public function __construct(AvByApi $av)
+    {
         $this->av = $av;
     }
-    public function setCarBrand(string $carBrandSlug) : void {
+    public function setCarBrand(string $carBrandSlug): void
+    {
         $this->carBrandSlug = $carBrandSlug;
     }
 

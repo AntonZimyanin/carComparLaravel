@@ -1,6 +1,5 @@
 <?php
 
-
 namespace App\Telegram\Commands;
 
 use App\Http\Controllers\CarPreferenceController;
@@ -19,8 +18,7 @@ class StoreCommand
         CarPreferenceController $carPrefController,
         AvByCarProperty $property,
         AvByParser $parser,
-    )
-    {
+    ) {
         $this->carPrefController = $carPrefController;
         $this->parser = $parser;
         $this->property = $property;

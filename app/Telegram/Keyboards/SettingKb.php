@@ -27,10 +27,9 @@ class SettingKb
             foreach ($pref as $p) {
                 if ($p['car_brand'] && $p['car_model']) {
                     $kb->row([
-                        Button::make('👁️ ' . $p['car_brand'] . ' ' . $p['car_model'])->action('use_filer')->param('filter_id', $p['id']),
+                        Button::make('👁️ ' . $p['car_brand'] . ' ' . $p['car_model'])->action('filer_data')->param('filter_id', $p['id']),
                     ]);
-                }
-                else {
+                } else {
                     $kb->row([
                         Button::make('Фильтр ' . $i)->action('filter_page'),
                     ]);

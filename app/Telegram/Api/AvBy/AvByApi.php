@@ -37,13 +37,11 @@ class AvByApi
 
         return null;
     }
-    public function getModels($brandSlug, $brandId=null)
+    public function getModels($brandSlug, $brandId = null)
     {
         if ($brandId === null) {
             $brandId = $this->findBrandIdBySlug($brandSlug);
         }
-
-
 
         $url = "https://api.av.by/offer-types/cars/catalog/brand-items/$brandId/models";
 
@@ -52,16 +50,6 @@ class AvByApi
             'User-Agent' => 'Mozilla/5.0 (X11; Linux i686; rv:125.0) Gecko/20100101 Firefox/125.0'
         ])->get($url)->json();
 
-//        $ch = curl_init();
-//        curl_setopt($ch, CURLOPT_URL, $url);
-//        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-//        curl_setopt($ch, CURLOPT_HTTPHEADER, [
-//            'X-Api-Key:' . $this->xApiKey
-//        ]);
-//        $result = curl_exec($ch);
-//        curl_close($ch);
-
-//        return json_decode($result, true);
     }
 
 

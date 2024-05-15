@@ -6,39 +6,13 @@ use DefStudio\Telegraph\Contracts\StorageDriver;
 
 class State extends Meta
 {
-    private StorageDriver $storage;
-    public string $field;
+    public bool $state;
+    public mixed $value;
+    public string $name;
 
-    public function __construct(StorageDriver $storage)
+    public function __construct(string $name) 
     {
-        parent::__construct($this);
-        $this->storage = $storage;
+        $this->name = $name;
     }
-
-    public function set($key, $value): void
-    {
-        $this->storage->set($key, $value);
-//        $this->storage->set($this->field, $value);
-    }
-
-    public function get($value): string
-    {
-        return $this->storage->get($value);
-    }
-
-    public function forget(): void
-    {
-        $this->storage->forget($this->field);
-    }
-
-//    public function has() : bool {
-////        return $this->storage->has($this->field);
-//    }
-
-    public function getAll()
-    {
-        //
-    }
-
 
 }

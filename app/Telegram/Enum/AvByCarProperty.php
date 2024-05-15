@@ -16,8 +16,7 @@ class AvByCarProperty
         string $carModelName = '',
         int $carPriceLow = 0,
         int $carPriceHigh = 0,
-    ): void
-    {
+    ): void {
         $this->chatId = $chatId;
         $this->carBrand = $carBrand;
         $this->carModelName = $carModelName;

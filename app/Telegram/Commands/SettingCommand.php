@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Redis;
 class SettingCommand
 {
     private SettingKb $kb;
-    const mess = "
+    public const mess = "
 *Настройки*\n
 Добавление нескольких фильтров позволит Вам создавать комбинации из разных параметров.\n
 👁 - посмотреть текущую настройку
@@ -30,22 +30,22 @@ class SettingCommand
      */
     public function sendCommand(TelegraphChat $chat): void
     {
-//        Redis::flushAll();
-//        if (Redis::hGetAll("path")) {
-//            Redis::del("path");
-//        }
-//
-//        if ($chat->storage()->get("car_model_name") ||  $chat->storage()->get("car_brand_name")) {
-//            $chat->storage()->forget("car_model_name");
-//            $chat->storage()->forget("car_brand_name");
-//            $chat->storage()->forget("car_price_low");
-//            $chat->storage()->forget("car_price_high");
-//        }
-//        $lastMessId = $chat->storage()->get('message_id');
-//
-//        if ($lastMessId) {
-//            $chat->deleteMessage($lastMessId)->send();
-//        }
+        //        Redis::flushAll();
+        //        if (Redis::hGetAll("path")) {
+        //            Redis::del("path");
+        //        }
+        //
+        //        if ($chat->storage()->get("car_model_name") ||  $chat->storage()->get("car_brand_name")) {
+        //            $chat->storage()->forget("car_model_name");
+        //            $chat->storage()->forget("car_brand_name");
+        //            $chat->storage()->forget("car_price_low");
+        //            $chat->storage()->forget("car_price_high");
+        //        }
+        //        $lastMessId = $chat->storage()->get('message_id');
+        //
+        //        if ($lastMessId) {
+        //            $chat->deleteMessage($lastMessId)->send();
+        //        }
 
 
         $messId = $chat->message(self::mess)->keyboard(

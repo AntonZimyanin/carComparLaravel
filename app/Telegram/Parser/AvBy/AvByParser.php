@@ -11,6 +11,17 @@ use DOMXPath;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Redis;
 
+/*
+URL example :
+
+Without price:
+https://cars.av.by/audi/a2
+
+With price:
+https://cars.av.by/filter?brands[0][brand]=1444&brands[0][model]=1451&price_usd[min]=1&price_usd[max]=111111
+https://cars.av.by/filter?brands[0][brand]=6&brands[0][model]=5812&brands[0][generation]=4316&price_usd[max]=20000
+
+*/
 
 class AvByParser
 {
@@ -26,12 +37,10 @@ class AvByParser
         $this->avByApi = $avByApi;
     }
 
-    //https://cars.av.by/audi/a2
-    //https://cars.av.by/filter?brands[0][brand]=1444&brands[0][model]=1451&price_usd[min]=1&price_usd[max]=111111
-    public function set(
-        AvByCarProperty $p
-    ): void {
+
+    public function set(AvByCarProperty $p): void {
         $isFirstArg = true;
+    
         if ($p->carBrand) {
             $this->brandId = $this->avByApi->findBrandIdBySlug($p->carBrand);
             $this->url .= "?brands[0][brand]=" . $this->brandId;
@@ -41,7 +50,7 @@ class AvByParser
             $this->modelId = $this->avByApi->findModelIdBySlug($p->carModelName, $this->brandId);
             $this->url .= "&brands[0][model]=" . $this->modelId;
         }
-
+    
         if ($p->carPriceLow > 0) {
             if ($isFirstArg) {
                 $this->url .= "?price_usd[min]=" . $p->carPriceLow;
@@ -51,32 +60,28 @@ class AvByParser
                 $this->url .= "&price_usd[min]=" . $p->carPriceLow;
             }
         }
-        if ($p->carPriceHigh > 0 && !$isFirstArg) {
-            $this->url .= "&price_usd[max]=" . $p->carPriceHigh;
+        if ($p->carPriceHigh > 0) {
+            if ($isFirstArg) {
+                $this->url .= "?price_usd[max]=" . $p->carPriceHigh;
+                $isFirstArg = false;
+            }
+            else {
+                $this->url .= "&price_usd[max]=" . $p->carPriceHigh;
+            }
         }
-        else {
-            $this->url .= "?price_usd[max]=" . $p->carPriceHigh;
-        }
-
     }
+    
+
 
 
     public function parse(TelegraphChat $chat): void
     {
 
-        //        $url = "https://cars.av.by/filter?brands[0][brand]=6&brands[0][model]=5812&brands[0][generation]=4316&price_usd[max]=20000";
-
-        // $handle = curl_init($this->url);
-        // curl_setopt($handle, CURLOPT_RETURNTRANSFER, true);
-        // curl_setopt($handle, CURLOPT_HTTPHEADER, ['User-Agent' => 'Mozilla/5.0 (X11; Linux i686; rv:125.0) Gecko/20100101 Firefox/125.0'  ]);
-        // $html = curl_exec($handle);
         $html = Http::withHeaders([
             'User-Agent' => 'Mozilla/5.0 (X11; Linux i686; rv:125.0) Gecko/20100101 Firefox/125.0'
         ])->get($this->url)->body();
         libxml_use_internal_errors(true);
-//      
         $doc = new DOMDocument();
-
         $doc->loadHTML($html);
 
         $xpath = new DOMXPath($doc);
@@ -122,7 +127,7 @@ class AvByParser
                     $generation = $val[2]['value'];
 
                     foreach ($val as $item) {
-                        if ( $item['name'] == "year") {
+                        if ($item['name'] == "year") {
                             $year = $item['value'];
                         }
                     }
@@ -137,19 +142,27 @@ class AvByParser
 
             //TODO: fix paramert
             $brandLowCase = strtolower($brand);
-            // $chat->message($brandLowCase)->send();
             // Redis::del("car:{$brandLowCase}:$i");
             // $chat->message(strtolower($brand))->send();
-            Redis::hSet("car:$brandLowCase:$i",
-                 "sellername", $sellerName,
-                 "locationname", $locationName,
-                 "brand", $brand,
-                 "model", $model,
-                 "generation", $generation,
-                 "year", $year,
-                 "publicurl", $publicUrl,
-                 "price", $price,
-             );
+            Redis::hSet(
+                "car:$brandLowCase:$i",
+                "sellername",
+                $sellerName,
+                "locationname",
+                $locationName,
+                "brand",
+                $brand,
+                "model",
+                $model,
+                "generation",
+                $generation,
+                "year",
+                $year,
+                "publicurl",
+                $publicUrl,
+                "price",
+                $price,
+            );
             $i++;
         }
         Redis::set("car_count", $i);

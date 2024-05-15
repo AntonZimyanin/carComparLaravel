@@ -12,13 +12,13 @@ class SetSort
     public function __construct(SortKb $sortKb)
     {
         $this->sortKb = $sortKb;
-
     }
 
     /**
      * @throws StorageException
      */
-    public function get(TelegraphChat $chat): void{
+    public function get(TelegraphChat $chat): void
+    {
         $messSortId = $chat->message("Выбери способ сортировки машин")
             ->keyboard(
                 ($this->sortKb)()

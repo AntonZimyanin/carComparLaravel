@@ -6,7 +6,7 @@ use DefStudio\Telegraph\Models\TelegraphChat;
 
 class HelpCommand
 {
-    const mess = "
+    public const mess = "
 Я БОТ, который поможет купить машину
 
 Я помогу купить машину по Вашим индивидуальным параметрам⚙️

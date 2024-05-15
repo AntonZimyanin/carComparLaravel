@@ -2,7 +2,6 @@
 
 namespace App\Telegram\Keyboards\Pagination;
 
-
 use Illuminate\Support\Facades\Redis;
 
 use DefStudio\Telegraph\Keyboard\Button;
@@ -10,11 +9,10 @@ use DefStudio\Telegraph\Keyboard\Keyboard;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
 
-
 class PaginationKb
 {
-    const BACK_TO_SETTINGS = 'Вернуться к настройкам';
-    const ADD_FILTER = 'Добавить фильтр';
+    public const BACK_TO_SETTINGS = 'Вернуться к настройкам';
+    public const ADD_FILTER = 'Добавить фильтр';
     private static array $fullPath = [
             'add_filter',
             'show_cars',
@@ -40,7 +38,8 @@ class PaginationKb
      * @throws ContainerExceptionInterface
      * @throws NotFoundExceptionInterface
      */
-    public function getPath() : array {
+    public function getPath(): array
+    {
         for ($i = 0; $i < count(self::$fullPath); $i++) {
             if (Redis::get("path:$i") !== null) {
                 self::$path[] = Redis::get("path:$i");
@@ -89,4 +88,3 @@ class PaginationKb
         return $kb;
     }
 }
-

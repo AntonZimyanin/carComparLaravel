@@ -20,9 +20,9 @@ Artisan::command('setup', function () {
     dd($bot->registerCommands([
         '/start' => '/start',
         '/setting' => '/start',
-        '/help' =>'/start',
-        '/search' =>'/search',
-        '/set_sort' =>'/set_sort',
+        '/help' => '/start',
+        '/search' => '/search',
+        '/set_sort' => '/set_sort',
     ])->send());
 });
 
@@ -30,4 +30,3 @@ Artisan::command('setup', function () {
 Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
 })->purpose('Display an inspiring quote');
-

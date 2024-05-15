@@ -9,7 +9,6 @@ use DefStudio\Telegraph\Exceptions\StorageException;
 use DefStudio\Telegraph\Models\TelegraphChat;
 use Illuminate\Support\Collection;
 
-
 class CarBrand
 {
     private CarModel $carModel;
@@ -20,8 +19,7 @@ class CarBrand
         CarModelKb $carModelKb,
         PaginationKb $paginationKb,
         CarModel $carModel
-    )
-    {
+    ) {
         $this->carModelKb = $carModelKb;
         $this->paginationKb = $paginationKb;
         $this->carModel = $carModel;
@@ -35,10 +33,11 @@ class CarBrand
         $lastMessId = $chat->storage()->get('message_id');
         $carBrandName = $data->get('car_brand');
 
-        if (!($carBrandName) && $chat->storage()->get('car_brand_name')) {
+        if ( !($carBrandName) && !( $chat->storage()->get('car_brand_name'))) { 
             $this->carModel->setCarModel($chat, $data);
             return;
         }
+
         $chat->storage()->set('car_brand_name', $carBrandName);
 
         $mess = "*Выбырите модель машины*";

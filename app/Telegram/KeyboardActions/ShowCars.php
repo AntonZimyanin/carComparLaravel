@@ -4,6 +4,7 @@ namespace App\Telegram\KeyboardActions;
 
 use App\Telegram\Keyboards\Pagination\PaginationKb;
 use App\Telegram\Keyboards\Builder\KeyboardBuilder;
+use App\Telegram\FSM\CarFSM;
 
 use DefStudio\Telegraph\Exceptions\StorageException;
 use DefStudio\Telegraph\Keyboard\Button;
@@ -15,13 +16,15 @@ class ShowCars
     private PaginationKb $paginationKb;
     private KeyboardBuilder $kbBuilder;
     private CarModel $carModel;
+    private CarFSM $carFSM;
 
 
-    public function __construct(CarModel $carModel, PaginationKb $paginationKb, KeyboardBuilder $kbBuilder)
+    public function __construct(CarModel $carModel, PaginationKb $paginationKb, KeyboardBuilder $kbBuilder, CarFSM $carFSM)
     {
         $this->paginationKb = $paginationKb;
         $this->carModel = $carModel;
         $this->kbBuilder = $kbBuilder;
+        $this->carFSM = $carFSM;    
     }
 
     /**
@@ -60,8 +63,11 @@ class ShowCars
     public function showCars(TelegraphChat $chat, Collection $data): void
     {
         $initLetter = $data->get('letter');
+        // 0 and 1 = 0
+        // 0 and 0 = 0
+        // 1 and 1 = 1
 
-        if (empty($initLetter) && $chat->storage()->get('init_letter')) {
+        if ( !($initLetter) && !($chat->storage->get('init_letter'))) { 
             $this->carModel->setCarModel($chat, $data);
             return;
         }

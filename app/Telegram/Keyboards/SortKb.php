@@ -7,7 +7,7 @@ use DefStudio\Telegraph\Keyboard\Keyboard;
 
 class SortKb
 {
-    public function __invoke() : Keyboard
+    public function __invoke(): Keyboard
     {
         return Keyboard::make()->row([
             Button::make('Актуальные')->action('set_sort_action')->param('sort', 1),

@@ -22,7 +22,6 @@ class Search
         AvByParser $parser,
         CarPreferenceController $carPrefController,
         AvByCarProperty $property,
-
     ) {
         $this->parser = $parser;
         $this->carPrefController = $carPrefController;
@@ -41,10 +40,10 @@ class Search
         $carBrandName = $chat->storage()->get('car_brand_name') ?? '';
         $carPriceLow = (int)$chat->storage()->get('car_price_low') ?? 0;
         $carPriceHigh = (int)$chat->storage()->get('car_price_high') ?? 0;
-        
+
 
         $this->property->set(
-            $chat->id,  
+            $chat->id,
             $carBrandName,
             $carModelName,
             $carPriceLow,
@@ -60,8 +59,8 @@ class Search
 
         $this->parser->parse($chat);
 
-//        $chat->storage()->forget('message_id');
-        $lCaseBrand = strtolower($carBrandName); 
+        //        $chat->storage()->forget('message_id');
+        $lCaseBrand = strtolower($carBrandName);
         $car = Redis::hGetAll("car:{$lCaseBrand}:0");
         $carCount = Redis::get('car_count');
 
@@ -79,7 +78,7 @@ class Search
             Button::make('Вперед')->action('show_parse_cars')->param('car_id', 1),
         ]);
         $messId = $chat->message(
-                "
+            "
 Продавец: {$car['sellername']}
 Город: {$car['locationname']}
 Бренд: {$car['brand']}
@@ -88,7 +87,7 @@ class Search
 Год: {$car['year']}
 Цена: {$car['price']}$
 Ссылка: {$car['publicurl']} "
-            )->keyboard($kb)->send()->telegraphMessageId();
+        )->keyboard($kb)->send()->telegraphMessageId();
 
         $chat->storage()->set('car_list_message_id', $messId);
     }
@@ -96,8 +95,6 @@ class Search
 
     public function searchKb(TelegraphChat $chat, int $searchId): void
     {
-        $chat->message($searchId)->send();
-
         $pref = $this->carPrefController->get($chat->id, $searchId);
 
         $this->property->set(
@@ -105,7 +102,7 @@ class Search
             $pref['car_brand'],
             $pref['car_model'],
             $pref['car_price_low'],
-$pref['car_price_high'],
+            $pref['car_price_high'],
         );
 
         $chat->message($pref['car_brand'])->send();
@@ -118,7 +115,7 @@ $pref['car_price_high'],
         $chat->message("Поиск начат...")->send();
 
         $this->parser->parse($chat);
-//        $chat->storage()->forget('message_id');
+        //        $chat->storage()->forget('message_id');
         $i = 0;
         $car = Redis::hGetAll("car:{$pref['car_brand']}:$i");
         $carCount = Redis::get('car_count');

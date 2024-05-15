@@ -10,7 +10,7 @@ class StartCommand
 {
     private StartKb $kb;
 
-    const mess = "
+    public const mess = "
 Добро пожаловать!
 
 Я БОТ, который поможет купить машину
