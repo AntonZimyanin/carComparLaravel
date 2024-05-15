@@ -4,6 +4,7 @@ namespace App\Telegram\Commands;
 
 use App\Http\Controllers\CarPreferenceController;
 use App\Telegram\Enum\AvByCarProperty;
+use App\Telegram\FSM\StateManager;
 use App\Telegram\Parser\AvBy\AvByParser;
 use DefStudio\Telegraph\Exceptions\StorageException;
 use DefStudio\Telegraph\Keyboard\Button;
@@ -30,24 +31,26 @@ class Search
     /**
      * @throws StorageException
      */
-    public function search(TelegraphChat $chat): void
+    public function search(TelegraphChat $chat, StateManager $state): void
     {
         $lastMessId = $chat->storage()->get('message_id');
 
         $chat->deleteKeyboard($lastMessId)->send();
 
-        $carModelName = $chat->storage()->get("car_model_name") ?? '';
-        $carBrandName = $chat->storage()->get('car_brand_name') ?? '';
-        $carPriceLow = (int)$chat->storage()->get('car_price_low') ?? 0;
-        $carPriceHigh = (int)$chat->storage()->get('car_price_high') ?? 0;
+        $carProperty = $state->getAllData();
+
+//        $carModelName = $chat->storae()->get("car_model_name") ?? '';
+//        $carBrandName = $chat->storgage()->get('car_brand_name') ?? '';
+//        $carPriceLow = (int)$chat->storage()->get('car_price_low') ?? 0;
+//        $carPriceHigh = (int)$chat->storage()->get('car_price_high') ?? 0;
 
 
         $this->property->set(
             $chat->id,
-            $carBrandName,
-            $carModelName,
-            $carPriceLow,
-            $carPriceHigh,
+            empty($carProperty['carBrand']) ? '' : $carProperty['carBrand'],
+            empty($carProperty['carModel']) ? '' : $carProperty['carModel'],
+            empty($carProperty['carPriceLow']) ? 0 : $carProperty['carPriceLow'],
+            empty($carProperty['$carPriceHigh']) ? 0 : $carProperty['$carPriceHigh'],
         );
 
 
@@ -59,8 +62,7 @@ class Search
 
         $this->parser->parse($chat);
 
-        //        $chat->storage()->forget('message_id');
-        $lCaseBrand = strtolower($carBrandName);
+        $lCaseBrand = strtolower($this->property->carBrand);
         $car = Redis::hGetAll("car:{$lCaseBrand}:0");
         $carCount = Redis::get('car_count');
 
@@ -105,8 +107,6 @@ class Search
             $pref['car_price_high'],
         );
 
-        $chat->message($pref['car_brand'])->send();
-
         $this->parser->set(
             $this->property,
         );
@@ -130,8 +130,8 @@ class Search
             Button::make("1/$carCount")->action('page_number')->param('id', 0),
         ])
             ->row([
-                Button::make('Назад')->action('show_parse_cars')->param('car_id', 0),
-                Button::make('Вперед')->action('show_parse_cars')->param('car_id', 1),
+                Button::make('Назад')->action('show_parse_cars')->param('car_id', 0)->param('brand', $pref['car_brand'])    ,
+                Button::make('Вперед')->action('show_parse_cars')->param('car_id', 1)->param('brand', $pref['car_brand']),
             ]);
         $messId = $chat->message(
             "

@@ -2,6 +2,7 @@
 
 namespace App\Telegram\KeyboardActions;
 
+use App\Telegram\FSM\StateManager;
 use App\Telegram\Keyboards\Pagination\PaginationKb;
 use App\Telegram\Keyboards\Builder\KeyboardBuilder;
 use App\Telegram\FSM\CarFSM;
@@ -10,21 +11,23 @@ use DefStudio\Telegraph\Exceptions\StorageException;
 use DefStudio\Telegraph\Keyboard\Button;
 use DefStudio\Telegraph\Models\TelegraphChat;
 use Illuminate\Support\Collection;
+use Psr\Container\ContainerExceptionInterface;
+use Psr\Container\NotFoundExceptionInterface;
 
 class ShowCars
 {
     private PaginationKb $paginationKb;
     private KeyboardBuilder $kbBuilder;
-    private CarModel $carModel;
+    private SetCarModel $setCarModel;
     private CarFSM $carFSM;
 
 
-    public function __construct(CarModel $carModel, PaginationKb $paginationKb, KeyboardBuilder $kbBuilder, CarFSM $carFSM)
+    public function __construct(SetCarModel $setCarModel, PaginationKb $paginationKb, KeyboardBuilder $kbBuilder, CarFSM $carFSM)
     {
         $this->paginationKb = $paginationKb;
-        $this->carModel = $carModel;
+        $this->setCarModel = $setCarModel;
         $this->kbBuilder = $kbBuilder;
-        $this->carFSM = $carFSM;    
+        $this->carFSM = $carFSM;
     }
 
     /**
@@ -58,38 +61,51 @@ class ShowCars
      *
      * @param TelegraphChat $chat
      * @param Collection $data
+     * @param StateManager $state
      * @throws StorageException
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
      */
-    public function showCars(TelegraphChat $chat, Collection $data): void
+    public function showCars(TelegraphChat $chat, Collection $data, StateManager $state): void
     {
-        $initLetter = $data->get('letter');
+        $firstLetter = $data->get('letter') ?? $state->getData($this->carFSM->firstLettter);
         // 0 and 1 = 0
         // 0 and 0 = 0
         // 1 and 1 = 1
 
-        if ( !($initLetter) && !($chat->storage->get('init_letter'))) { 
-            $this->carModel->setCarModel($chat, $data);
+//        if ( !($firstLetter) || !($state->getData($this->carFSM->firstLettter))) {
+//            return;
+//        }
+        $direct = $data->get('direct') ?? 'forward';
+
+        if ($direct === 'back' || $firstLetter) {
+
+            $state->setData($this->carFSM->firstLettter, $firstLetter);
+
+            $brands = $this->getAllCarBrands();
+            $brandsBeginningWithLetter = array_filter($brands, function ($brand) use ($firstLetter) {
+                return $brand['name'][0] === $firstLetter;
+            });
+
+            $mess = empty($brandsBeginningWithLetter) ? "Бренда с такой буквой нет" : "Машины начинаются на букву *$firstLetter*";
+
+            $buttons = $this->getButtons($brandsBeginningWithLetter);
+
+            $this->kbBuilder->set($buttons, 2);
+            $kb = $this->kbBuilder->build();
+
+            $lastMessId = $chat->storage()->get('message_id');
+            $kb = $this->paginationKb->addPaginationToKb($kb, 'show_cars', 'car_model');
+
+            $chat->edit($lastMessId)->message($mess)->keyboard(
+                $kb
+            )->send();
             return;
         }
 
-        $chat->storage()->set('init_letter', $initLetter);
-        $brands = $this->getAllCarBrands();
-        $brandsBeginningWithLetter = array_filter($brands, function ($brand) use ($initLetter) {
-            return $brand['name'][0] === $initLetter;
-        });
+        $this->setCarModel->handle($chat, $data, $state);
 
-        $mess = empty($brandsBeginningWithLetter) ? "Бренда с такой буквой нет" : "Машины начинаются на букву *$initLetter*";
 
-        $buttons = $this->getButtons($brandsBeginningWithLetter);
 
-        $this->kbBuilder->set($buttons, 2);
-        $kb = $this->kbBuilder->build();
-
-        $lastMessId = $chat->storage()->get('message_id');
-        $kb = $this->paginationKb->addPaginationToKb($kb, 'show_cars', 'car_model');
-
-        $chat->edit($lastMessId)->message($mess)->keyboard(
-            $kb
-        )->send();
     }
 }

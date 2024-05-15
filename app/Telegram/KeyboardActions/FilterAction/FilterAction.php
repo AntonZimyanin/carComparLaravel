@@ -31,36 +31,27 @@ class FilterAction
         $this->carPrefController->copy($chatId, $prefId);
     }
 
-    public function edit($chatId, Collection $data): void
+    public function edit(TelegraphChat $chat, Collection $data): void
     {
-        $prefId = $data->get('pref_id');
-        $this->carPrefController->update($chatId, $prefId);
+        $prefId = $data->get('filter_id');
+        $lastMessId = $chat->storage()->get('message_id');
+
+        $kb = Keyboard::make()->row([
+            Button::make('Изменить настройки')->action('add_filter'),
+        ]);
+
+        $mess = $this->showDBPref($chat, $prefId);
+
+        $chat->edit($lastMessId)->message($mess)->keyboard($kb)->send();
+
     }
 
-    public function show(TelegraphChat $chat, Collection $data) { 
-        $lastMessId = $chat->storage()->get('message_id');
+    public function show(TelegraphChat $chat, Collection $data) {
+
         $prefId = $data->get('filter_id');
-        $pref = $this->carPrefController->get($chat->id, $prefId);
+        $lastMessId = $chat->storage()->get('message_id');
 
-        $mess = '';
-        $chat->message("asdkfjn")->send();
-        if ($pref['car_brand']) {
-            $mess .= "*Бренд машины:*\n{$pref['car_brand']}\n";
-        } 
-        if ($pref['car_model']) {
-            $mess .= "*Модель машины:*\n{$pref['car_model']}\n";
-        }
-        if ($pref['car_price_high']) { 
-            $carPriceHigh = '∞';
-        }
-        else { 
-            $carPriceHigh = $pref['car_price_high'];
-        }
-        $mess .= "*Ценовой диапозон:*\n{$pref['car_price_low']} - $carPriceHigh\n";
-        if ($pref['car_price_low']) {
-        }
-
-        $mess .= "Чтобы найти нужные вам машины кликните назад и выберите фильтр, котрый вам нужен, нажав на кнопку 🔍\nИли настройте новый /settings";
+        $mess = $this->showDBPref($chat, $prefId);
 
         $kb = Keyboard::make()->row([
                 Button::make('Назад')->action('back_to_settings'),

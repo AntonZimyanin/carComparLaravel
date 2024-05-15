@@ -5,24 +5,25 @@ namespace App\Telegram;
 use App\Telegram\FSM\CarFSM;
 use App\Telegram\FSM\StateManager;
 
-use App\Http\Controllers\CarPreferenceController;
 use App\Telegram\Commands\HelpCommand;
 use App\Telegram\Commands\Search;
 use App\Telegram\Commands\SetSort;
 use App\Telegram\Commands\SettingCommand;
 use App\Telegram\Commands\StartCommand;
 use App\Telegram\Commands\StoreCommand;
-use App\Telegram\KeyboardActions\CarBrand;
-use App\Telegram\KeyboardActions\CarModel;
-use App\Telegram\KeyboardActions\CarPrice;
-use App\Telegram\KeyboardActions\Filter;
+use App\Telegram\KeyboardActions\SetCarBrand;
+use App\Telegram\KeyboardActions\SetCarModel;
+use App\Telegram\KeyboardActions\SetCarPrice;
+use App\Telegram\KeyboardActions\AddFilter;
 use App\Telegram\KeyboardActions\FilterAction\FilterAction;
 use App\Telegram\KeyboardActions\ShowCars;
+use App\Telegram\KeyboardActions\CarPriceManualInput;
+
 use DefStudio\Telegraph\Exceptions\StorageException;
-use DefStudio\Telegraph\Facades\Telegraph;
 use DefStudio\Telegraph\Handlers\WebhookHandler;
 use DefStudio\Telegraph\Keyboard\Button;
 use DefStudio\Telegraph\Keyboard\Keyboard;
+use DefStudio\Telegraph\Models\TelegraphBot;
 use Illuminate\Support\Facades\Redis;
 use Illuminate\Support\Stringable;
 
@@ -32,8 +33,6 @@ class Handler extends WebhookHandler
     private CarFSM $carFSM;
     private StateManager $state;
 
-    //controllers
-    private CarPreferenceController $carPreferenceController;
     //commands
     private StartCommand $startCommand;
     private HelpCommand $helpCommand;
@@ -43,47 +42,53 @@ class Handler extends WebhookHandler
     private SetSort $setSort;
 
     //action
-    private Filter $filter;
-    private CarBrand $carBrand;
-    private CarModel $carModel;
-    private CarPrice $carPrice;
+    private CarPriceManualInput $carPriceManualInput;
+    private AddFilter $addFilter;
+    private SetCarBrand $setCarBrand;
+    private SetCarModel $setCarModel;
+    private SetCarPrice $setCarPrice;
     private ShowCars $showCars;
     private FilterAction $filterAction;
 
     public function __construct(
-        StartCommand $startCommand,
-        SettingCommand $settingCommand,
-        Filter $filter,
-        CarBrand $carBrand,
-        CarModel $carModel,
-        CarPrice $carPrice,
-        ShowCars $showCars,
-        Search $search,
-        FilterAction $filterAction,
-        HelpCommand $helpCommand,
-        StoreCommand $storeCommand,
-        SetSort $setSort,
-        CarPreferenceController $carPreferenceController,
-        CarFSM $carFSM, 
-        StateManager $state
+        StartCommand        $startCommand,
+        SettingCommand      $settingCommand,
+        AddFilter           $addFilter,
+        SetCarBrand         $setCarBrand,
+        SetCarModel         $setCarModel,
+        SetCarPrice         $setCarPrice,
+        ShowCars            $showCars,
+        Search              $search,
+        FilterAction        $filterAction,
+        CarPriceManualInput $carPriceManualInput,
+        HelpCommand         $helpCommand,
+        StoreCommand        $storeCommand,
+        SetSort             $setSort,
+        CarFSM              $carFSM,
+        StateManager        $state
     ) {
         parent::__construct();
+        // $this->bot = TelegraphBot::create([
+        //     'token' => $_ENV['BOT_TOKEN'],
+        //     'name' => $_ENV['BOT_NAME'],
+        // ]);
         $this->startCommand = $startCommand;
         $this->settingCommand = $settingCommand;
 
-        $this->filter = $filter;
-        $this->carBrand = $carBrand;
-        $this->carModel = $carModel;
-        $this->carPrice = $carPrice;
+        $this->addFilter = $addFilter;
+        $this->setCarBrand = $setCarBrand;
+        $this->setCarModel = $setCarModel;
+        $this->setCarPrice = $setCarPrice;
         $this->showCars = $showCars;
         $this->search = $search;
         $this->filterAction = $filterAction;
+        $this->carPriceManualInput = $carPriceManualInput;
         $this->helpCommand = $helpCommand;
         $this->storeCommand = $storeCommand;
         $this->setSort = $setSort;
-        $this->carPreferenceController = $carPreferenceController;
         $this->carFSM = $carFSM;
         $this->state = $state;
+
     }
 
     /**
@@ -92,11 +97,7 @@ class Handler extends WebhookHandler
     public function start(): void
     {
 
-        $this->state->setData($this->carFSM->carBrand, 'audi');
-        $brand = $this->state->getData($this->carFSM->carBrand);
-
-        $this->chat->message("brand: $brand")->send();
-        // $this->startCommand->sendCommand($this->chat);
+        $this->startCommand->sendCommand($this->chat);
     }
 
     public function help(): void
@@ -111,6 +112,7 @@ class Handler extends WebhookHandler
     {
         $this->settingCommand->sendCommand(
             $this->chat,
+            $this->state,
         );
     }
 
@@ -131,7 +133,7 @@ class Handler extends WebhookHandler
     public function filer_data()
     {
         $this->filterAction->show(
-            $this->chat, 
+            $this->chat,
             $this->data,
         );
     }
@@ -141,7 +143,10 @@ class Handler extends WebhookHandler
      */
     public function add_filter(): void
     {
-        $this->filter->addFilter($this->chat, $this->state);
+        $this->addFilter->handle(
+            $this->chat,
+            $this->state
+        );
     }
 
     /**
@@ -151,7 +156,8 @@ class Handler extends WebhookHandler
     {
         $this->showCars->showCars(
             $this->chat,
-            $this->data
+            $this->data,
+            $this->state
         );
     }
 
@@ -160,9 +166,10 @@ class Handler extends WebhookHandler
      */
     public function set_car_brand(): void
     {
-        $this->carBrand->setCarBrand(
+        $this->setCarBrand->handle(
             $this->chat,
             $this->data,
+            $this->state
         );
     }
 
@@ -171,9 +178,10 @@ class Handler extends WebhookHandler
      */
     public function set_car_model(): void
     {
-        $this->carModel->setCarModel(
+        $this->setCarModel->handle(
             $this->chat,
             $this->data,
+            $this->state
         );
     }
 
@@ -182,9 +190,10 @@ class Handler extends WebhookHandler
      */
     public function set_car_price(): void
     {
-        $this->carPrice->setCarPrice(
+        $this->setCarPrice->handle(
             $this->chat,
             $this->data,
+            $this->state
         );
     }
 
@@ -220,18 +229,18 @@ class Handler extends WebhookHandler
         } else {
             $this->search->search(
                 $this->chat,
+                $this->state,
             );
         }
-
-
     }
 
     public function show_parse_cars(): void
     {
         $lastMessId = $this->chat->storage()->get('car_list_message_id');
         $carId = $this->data->get('car_id');
+        $carBrand = $this->data->get('brand');
 
-        $car = Redis::hGetAll("car:$carId");
+        $car =  Redis::hGetAll("car:{$carBrand}:$carId");
         $carCount = Redis::get('car_count');
 
         $pageNumber = $carId + 1;
@@ -239,8 +248,8 @@ class Handler extends WebhookHandler
             Button::make("{$pageNumber}/$carCount")->action('page_number')->param('id', 0),
         ])
             ->row([
-                Button::make('Назад')->action('show_parse_cars')->param('car_id', $carId - 1),
-                Button::make('Вперед')->action('show_parse_cars')->param('car_id', $carId + 1),
+                Button::make('Назад')->action('show_parse_cars')->param('car_id', $carId - 1)->param('brand', $carBrand),
+                Button::make('Вперед')->action('show_parse_cars')->param('car_id', $carId + 1)->param('brand', $carBrand),
             ]);
 
         $this->chat->edit($lastMessId)->message(
@@ -268,28 +277,12 @@ class Handler extends WebhookHandler
         $this->edit_setting_kb();
     }
 
-    public function copy_filter()
-    {
-        $this->chat->message("copy_")->send();
-        //        $this->filterAction->copy(
-        //            $this->chat,
-        //            $this->data
-        //        );
-    }
-
     public function edit_filter()
     {
-        $this->chat->message("edit")->send();
-        //        $this->filterAction->edit(
-        //            $this->chat,
-        //            $this->data
-        //        );
-    }
-
-
-    protected function handleUnknownCommand(Stringable $text): void
-    {
-        Telegraph::message("Такой команды нет")->send();
+        $this->filterAction->edit(
+            $this->chat,
+            $this->data
+        );
     }
 
     /**
@@ -300,8 +293,11 @@ class Handler extends WebhookHandler
         $this->storeCommand->store(
             $this->chat
         );
-
     }
+
+    /**
+     * @throws StorageException
+     */
     protected function handleChatMessage(Stringable $text): void
     {
         $messageText = $text->value();
@@ -315,20 +311,16 @@ class Handler extends WebhookHandler
             $this->{$cmd}();
             return;
         }
-
-        if ($this->chat->storage()->get('car_price_state')) {
-            $res = explode(' ', $messageText);
-            if (count($res) == 2 && is_numeric($res[0]) && is_numeric($res[1])) {
-                $this->chat->storage()->set('car_price_low', $res[0]);
-                $this->chat->storage()->set('car_price_high', $res[1]);
-                $this->carPrice->setCarPrice($this->chat, $this->data);
-                $this->chat->message("Цена успешно установлена: $res[0] - $res[1]")->send();
-                $this->chat->storage()->forget('car_price_state');
-                return;
-            }
-            $this->chat->message("Введите ценовой диапазон в формате *от до*\nПример: 100 200")->send();
+        if ($this->state->getState($this->carFSM->carPriceLow) && $messageText) {
+            $this->carPriceManualInput->handle(
+                $this->chat,
+                $this->data,
+                $this->state,
+                $messageText
+            );
             return;
         }
+
         $this->chat->message("Такой команды нет")->send();
     }
 }
