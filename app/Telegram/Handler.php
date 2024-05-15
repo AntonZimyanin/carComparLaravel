@@ -123,7 +123,6 @@ class Handler extends WebhookHandler
 
     public function set_sort_action()
     {
-        //set sort
         $sort = $this->data->get('sort');
         $messSortId = $this->chat->storage()->get('sort_message_id');
         $this->chat->message($sort)->send();
@@ -307,8 +306,7 @@ class Handler extends WebhookHandler
             'ℹ️ Справка' => 'help',
         ];
         if (array_key_exists($messageText, $action)) {
-            $cmd = $action[$messageText];
-            $this->{$cmd}();
+            $this->{$action[$messageText]}();
             return;
         }
         if ($this->state->getState($this->carFSM->carPriceLow) && $messageText) {
