@@ -17,7 +17,7 @@ class StateManager
     ];
 
     protected array $allFillable = [
-        'firstLettter'
+        'firstLetter'
     ];
 
     public function __construct(StorageDriver $storage)

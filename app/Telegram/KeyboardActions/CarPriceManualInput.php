@@ -10,12 +10,11 @@ use Illuminate\Support\Collection;
 
 class CarPriceManualInput
 {
-    private SetCarPrice $setCarPrice;
-    private CarFSM $carFSM;
-    public function __construct(SetCarPrice $setCarPrice, CarFSM $carFSM)
+    public function __construct(
+        protected SetCarPrice $setCarPrice,
+        protected CarFSM $carFSM
+    )
     {
-        $this->setCarPrice = $setCarPrice;
-        $this->carFSM = $carFSM;
     }
 
     /**
@@ -31,7 +30,7 @@ class CarPriceManualInput
 
             $this->setCarPrice->handle($chat, $data, $state);
 
-            $chat->message("Цена успешно установлена: $res[0] - $res[1]")->send();
+            $chat->message("Цена успешно установлена✅\n$res[0] - $res[1]")->send();
             $state->forgetState($this->carFSM->carPriceLow);
             return;
         }

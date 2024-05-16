@@ -9,11 +9,10 @@ use DefStudio\Telegraph\Keyboard\Keyboard;
 
 class CarModelKb extends BaseKb
 {
-    private AvByApi $av;
     private string $carBrandSlug;
-    public function __construct(AvByApi $av)
+    public function __construct(
+        protected AvByApi $av)
     {
-        $this->av = $av;
     }
     public function setCarBrand(string $carBrandSlug): void
     {

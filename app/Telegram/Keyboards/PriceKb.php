@@ -10,11 +10,9 @@ use DefStudio\Telegraph\Keyboard\Button;
 class PriceKb extends BaseKb
 {
     use KbWithPagination;
-    private KeyboardBuilder $kbBuilder;
 
-    public function __construct(KeyboardBuilder $kbBuilder)
+    public function __construct(protected KeyboardBuilder $kbBuilder)
     {
-        $this->kbBuilder = $kbBuilder;
     }
     /**
      * Create an array of buttons for each price_val of the alphabet.

@@ -27,20 +27,18 @@ class AvByParser
 {
     private string $xApiKey;
     private string $url;
-    private AvByApi $avByApi;
     private int $brandId;
     private int $modelId;
-    public function __construct(AvByApi $avByApi)
+
+    public function __construct(protected AvByApi $avByApi)
     {
         $this->url = "https://cars.av.by/filter";
         $this->xApiKey = 'y5b3b55fdce273d03ec1d22';
-        $this->avByApi = $avByApi;
     }
-
 
     public function set(AvByCarProperty $p): void {
         $isFirstArg = true;
-    
+
         if ($p->carBrand) {
             $this->brandId = $this->avByApi->findBrandIdBySlug($p->carBrand);
             $this->url .= "?brands[0][brand]=" . $this->brandId;
@@ -50,33 +48,18 @@ class AvByParser
             $this->modelId = $this->avByApi->findModelIdBySlug($p->carModelName, $this->brandId);
             $this->url .= "&brands[0][model]=" . $this->modelId;
         }
-    
+
         if ($p->carPriceLow > 0) {
-            if ($isFirstArg) {
-                $this->url .= "?price_usd[min]=" . $p->carPriceLow;
-                $isFirstArg = false;
-            }
-            else {
-                $this->url .= "&price_usd[min]=" . $p->carPriceLow;
-            }
+            $this->url .= ($isFirstArg ? "?" : "&") . "price_usd[min]=" . $p->carPriceLow;
+            $isFirstArg = false;
         }
         if ($p->carPriceHigh > 0) {
-            if ($isFirstArg) {
-                $this->url .= "?price_usd[max]=" . $p->carPriceHigh;
-                $isFirstArg = false;
-            }
-            else {
-                $this->url .= "&price_usd[max]=" . $p->carPriceHigh;
-            }
+            $this->url .= ($isFirstArg ? "?" : "&") . "price_usd[max]=" . $p->carPriceHigh;
         }
     }
-    
-
-
 
     public function parse(TelegraphChat $chat): void
     {
-
         $html = Http::withHeaders([
             'User-Agent' => 'Mozilla/5.0 (X11; Linux i686; rv:125.0) Gecko/20100101 Firefox/125.0'
         ])->get($this->url)->body();
@@ -94,75 +77,53 @@ class AvByParser
             $jsonData = json_decode(trim($textContent), true, 512, JSON_UNESCAPED_UNICODE);
             if (json_last_error() === JSON_ERROR_NONE) {
                 $extractedData[] = $jsonData;
-
             }
         }
-        if (empty($extractedData) ||
-        empty($extractedData[0]['props']['initialState']['filter']['main']['adverts'])
-        ) {
+        if (empty($extractedData) || empty($extractedData[0]['props']['initialState']['filter']['main']['adverts'])) {
             return;
         }
 
-        $sellerName = '';
-        $locationName = '';
-        $brand = '';
-        $model = '';
-        $generation = '';
-        $year = '';
-        $publicUrl = '';
-        $price = '';
         $i = 0;
         foreach ($extractedData[0]['props']['initialState']['filter']['main']['adverts'] as $fields) {
+            $carData = [
+                'sellername' => '',
+                'locationname' => '',
+                'brand' => '',
+                'model' => '',
+                'generation' => '',
+                'year' => '',
+                'publicurl' => '',
+                'price' => '',
+            ];
 
             foreach ($fields as $key => $val) {
                 if ($key == 'sellerName') {
-                    $sellerName = $val;
+                    $carData['sellername'] = $val;
                 }
                 if ($key == 'locationName') {
-                    $locationName = $val;
+                    $carData['locationname'] = $val;
                 }
                 if ($key == 'properties') {
-                    $brand = $val[0]['value'];
-                    $model = $val[1]['value'];
-                    $generation = $val[2]['value'];
+                    $carData['brand'] = $val[0]['value'];
+                    $carData['model'] = $val[1]['value'];
+                    $carData['generation'] = $val[2]['value'];
 
                     foreach ($val as $item) {
                         if ($item['name'] == "year") {
-                            $year = $item['value'];
+                            $carData['year'] = $item['value'];
                         }
                     }
                 }
                 if ($key == 'publicUrl') {
-                    $publicUrl = $val;
+                    $carData['publicurl'] = $val;
                 }
                 if ($key == 'price') {
-                    $price = $val["usd"]["amount"];
+                    $carData['price'] = $val["usd"]["amount"];
                 }
             }
 
-            //TODO: fix paramert
-            $brandLowCase = strtolower($brand);
-            // Redis::del("car:{$brandLowCase}:$i");
-            // $chat->message(strtolower($brand))->send();
-            Redis::hSet(
-                "car:$brandLowCase:$i",
-                "sellername",
-                $sellerName,
-                "locationname",
-                $locationName,
-                "brand",
-                $brand,
-                "model",
-                $model,
-                "generation",
-                $generation,
-                "year",
-                $year,
-                "publicurl",
-                $publicUrl,
-                "price",
-                $price,
-            );
+            $brandLowCase = strtolower($carData['brand']);
+            Redis::hSet("car:$brandLowCase:$i", ...$carData);
             $i++;
         }
         Redis::set("car_count", $i);

@@ -15,13 +15,12 @@ use Illuminate\Support\Collection;
 class SetCarModel
 {
     use KbWithPagination;
-    private PriceKb $priceKb;
-    private CarFSM $carFSM;
 
-    public function __construct(PriceKb $priceKb, CarFSM $carFSM)
+    public function __construct(
+        protected PriceKb $priceKb,
+        protected CarFSM $carFSM
+    )
     {
-        $this->priceKb = $priceKb;
-        $this->carFSM = $carFSM;
     }
 
     /**
@@ -34,7 +33,7 @@ class SetCarModel
         if ($carModelName) {
             $carModelName = $data->get("car_model_name");
             $state->setData($this->carFSM->carModel, $carModelName);
-//            $state->setState($this->carFSM->carPriceLow);
+            $state->setState($this->carFSM->carPriceLow);
         }
 
         $mess = "

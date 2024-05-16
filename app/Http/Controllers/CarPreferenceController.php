@@ -77,9 +77,12 @@ class CarPreferenceController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, CarPreference $carPreference)
+    public function update(int $chatId, int $prefId, array $args): void
     {
-        //
+        $carPref = $this->get($chatId, $prefId);
+        $carPref->update(
+            $args
+        );
     }
 
     /**

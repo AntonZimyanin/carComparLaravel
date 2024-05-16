@@ -8,10 +8,9 @@ use DefStudio\Telegraph\Keyboard\Keyboard;
 
 class SettingKb
 {
-    private CarPreferenceController $carPrefController;
-    public function __construct(CarPreferenceController $carPrefController)
+    public function __construct(
+        protected CarPreferenceController $carPrefController)
     {
-        $this->carPrefController = $carPrefController;
     }
     public function __invoke(int $chatId = null): Keyboard
     {

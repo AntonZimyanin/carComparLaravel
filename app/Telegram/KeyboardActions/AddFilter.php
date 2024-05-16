@@ -12,13 +12,11 @@ use DefStudio\Telegraph\Models\TelegraphChat;
 
 class AddFilter
 {
-    private AlphabetKb $alphabetKb;
-    private CarFSM $carFSM;
-    public function __construct(AlphabetKb $alphabetKb, CarFSM $carFSM)
-    {
-        $this->alphabetKb = $alphabetKb;
-        $this->carFSM = $carFSM;
-    }
+    public function __construct(
+        protected AlphabetKb $alphabetKb,
+        protected CarFSM $carFSM
+    )
+    {}
     /**
      * @throws StorageException
      */
@@ -28,7 +26,7 @@ class AddFilter
         $lastMessId = $chat->storage()->get('message_id');
         $kb = $this->alphabetKb->getKbWithPagination('add_filter', 'show_cars', 3);
 
-        $state->setState($this->carFSM->firstLettter);
+        $state->setState($this->carFSM->firstLetter);
         $chat->edit($lastMessId)->message($mess)->keyboard($kb)->send();
     }
 }

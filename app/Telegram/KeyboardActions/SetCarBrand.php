@@ -13,22 +13,12 @@ use Illuminate\Support\Collection;
 
 class SetCarBrand
 {
-    private SetCarModel $setCarModel;
-    private PaginationKb $paginationKb;
-    private CarModelKb $carModelKb;
-    private CarFSM $carFSM;
-
     public function __construct(
-        CarModelKb   $carModelKb,
-        PaginationKb $paginationKb,
-        SetCarModel  $setCarModel,
-        CarFSM       $carFSM
+        protected CarModelKb   $carModelKb,
+        protected PaginationKb $paginationKb,
+        protected SetCarModel  $setCarModel,
+        protected CarFSM       $carFSM
     ) {
-        $this->carModelKb = $carModelKb;
-        $this->paginationKb = $paginationKb;
-        $this->setCarModel = $setCarModel;
-        $this->carFSM = $carFSM;
-
     }
 
     /**
@@ -40,8 +30,7 @@ class SetCarBrand
         $carBrandName = $data->get('car_brand') ?? $state->getData($this->carFSM->carBrand);
 
 
-
-        if (($data->get('direct') === 'back' and $state->getData($this->carFSM->firstLettter)) || $carBrandName) {
+        if (($data->get('direct') === 'back' and $state->getData($this->carFSM->firstLetter)) || $carBrandName) {
             $state->setData($this->carFSM->carBrand, $carBrandName);
 
             $mess = "*Выбырите модель машины*";

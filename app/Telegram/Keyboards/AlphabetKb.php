@@ -11,14 +11,11 @@ use DefStudio\Telegraph\Keyboard\Button;
 class AlphabetKb extends BaseKb
 {
     use KbWithPagination;
-    private PaginationKb $paginationKb;
-    private KeyboardBuilder $kbBuilder;
-
-
-    public function __construct(PaginationKb $paginationKb, KeyboardBuilder $kbBuilder)
+    public function __construct(
+        protected PaginationKb $paginationKb,
+        protected KeyboardBuilder $kbBuilder
+    )
     {
-        $this->paginationKb = $paginationKb;
-        $this->kbBuilder = $kbBuilder;
     }
     /**
      * Create an array of buttons for each letter of the alphabet.

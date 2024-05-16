@@ -16,18 +16,13 @@ use Psr\Container\NotFoundExceptionInterface;
 
 class ShowCars
 {
-    private PaginationKb $paginationKb;
-    private KeyboardBuilder $kbBuilder;
-    private SetCarModel $setCarModel;
-    private CarFSM $carFSM;
-
-
-    public function __construct(SetCarModel $setCarModel, PaginationKb $paginationKb, KeyboardBuilder $kbBuilder, CarFSM $carFSM)
+    public function __construct(
+        protected SetCarModel $setCarModel,
+        protected PaginationKb $paginationKb,
+        protected KeyboardBuilder $kbBuilder,
+        protected CarFSM $carFSM
+    )
     {
-        $this->paginationKb = $paginationKb;
-        $this->setCarModel = $setCarModel;
-        $this->kbBuilder = $kbBuilder;
-        $this->carFSM = $carFSM;
     }
 
     /**
@@ -68,19 +63,13 @@ class ShowCars
      */
     public function showCars(TelegraphChat $chat, Collection $data, StateManager $state): void
     {
-        $firstLetter = $data->get('letter') ?? $state->getData($this->carFSM->firstLettter);
-        // 0 and 1 = 0
-        // 0 and 0 = 0
-        // 1 and 1 = 1
+        $firstLetter = $data->get('letter') ?? $state->getData($this->carFSM->firstLetter);
 
-//        if ( !($firstLetter) || !($state->getData($this->carFSM->firstLettter))) {
-//            return;
-//        }
         $direct = $data->get('direct') ?? 'forward';
 
         if ($direct === 'back' || $firstLetter) {
 
-            $state->setData($this->carFSM->firstLettter, $firstLetter);
+            $state->setData($this->carFSM->firstLetter, $firstLetter);
 
             $brands = $this->getAllCarBrands();
             $brandsBeginningWithLetter = array_filter($brands, function ($brand) use ($firstLetter) {

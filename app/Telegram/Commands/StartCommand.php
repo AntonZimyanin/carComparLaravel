@@ -8,8 +8,6 @@ use DefStudio\Telegraph\Models\TelegraphChat;
 
 class StartCommand
 {
-    private StartKb $kb;
-
     public const mess = "
 Добро пожаловать!
 
@@ -23,9 +21,9 @@ class StartCommand
 —————————————•
 Если у Вас нет кнопок, нажмите на квадратик возле микрофона
 ";
-    public function __construct(StartKb $kb)
+    public function __construct(
+        protected StartKb $kb)
     {
-        $this->kb = $kb;
     }
 
     public function sendCommand(TelegraphChat $chat): void

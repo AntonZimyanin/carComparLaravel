@@ -33,7 +33,7 @@ class FilterAction
 
     public function edit(TelegraphChat $chat, Collection $data): void
     {
-        $prefId = $data->get('filter_id');
+        $prefId = $data->get('pref_id');
         $lastMessId = $chat->storage()->get('message_id');
 
         $kb = Keyboard::make()->row([
@@ -43,6 +43,7 @@ class FilterAction
         $mess = $this->showDBPref($chat, $prefId);
 
         $chat->edit($lastMessId)->message($mess)->keyboard($kb)->send();
+        $chat->storage()->set('update_id', $prefId);
 
     }
 

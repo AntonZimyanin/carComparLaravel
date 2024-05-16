@@ -11,7 +11,6 @@ use Illuminate\Support\Facades\Redis;
 
 class SettingCommand
 {
-    private SettingKb $kb;
     public const MESS = "
 *Настройки*\n
 Добавление нескольких фильтров позволит Вам создавать комбинации из разных параметров.\n
@@ -21,9 +20,9 @@ class SettingCommand
 ❌ - удалить фильтр
 ";
 
-    public function __construct(SettingKb $kb)
+    public function __construct(
+        protected SettingKb $kb)
     {
-        $this->kb = $kb;
     }
 
     /**
@@ -33,7 +32,6 @@ class SettingCommand
     {
         $state->clear();
         Redis::del("path");
-
 
         $messId = $chat->message(self::MESS)->keyboard(
             ($this->kb)($chat->id)
@@ -54,6 +52,9 @@ class SettingCommand
         )->send();
     }
 
+    /**
+     * @throws StorageException
+     */
     public function editKb(TelegraphChat $chat): void
     {
         $lastMessId = $chat->storage()->get('message_id');

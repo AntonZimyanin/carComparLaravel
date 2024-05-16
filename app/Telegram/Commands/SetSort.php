@@ -8,10 +8,9 @@ use DefStudio\Telegraph\Models\TelegraphChat;
 
 class SetSort
 {
-    private SortKb $sortKb;
-    public function __construct(SortKb $sortKb)
+    public function __construct(
+        protected SortKb $sortKb)
     {
-        $this->sortKb = $sortKb;
     }
 
     /**

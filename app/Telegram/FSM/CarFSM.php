@@ -17,14 +17,14 @@ class Meta
 
 class CarFSM extends FSM
 {
-    public State $firstLettter;
+    public State $firstLetter;
     public State $carBrand;
     public State $carModel;
     public State $carPriceLow;
     public State $carPriceHigh;
 
-    public function __construct() { 
-        $this->firstLettter = new State('firstLettter');
+    public function __construct() {
+        $this->firstLetter = new State('firstLetter');
         $this->carBrand = new State('carBrand');
         $this->carModel = new State('carModel');
         $this->carPriceLow = new State('carPriceLow');
